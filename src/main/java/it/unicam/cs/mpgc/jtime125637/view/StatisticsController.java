@@ -86,11 +86,10 @@ public class StatisticsController {
     private void aggiornaChartProgetti() {
         ReportController.StatisticheProgetti stats = reportController.getStatisticheProgetti();
         
-        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList(
-            new PieChart.Data("Attivi (" + stats.getAttivi() + ")", stats.getAttivi()),
-            new PieChart.Data("Completati (" + stats.getCompletati() + ")", stats.getCompletati()),
-            new PieChart.Data("Vuoti (" + stats.getVuoti() + ")", stats.getVuoti())
-        );
+        ObservableList<PieChart.Data> pieChartData = FXCollections.observableArrayList();
+        pieChartData.add(new PieChart.Data("Attivi (" + stats.getAttivi() + ")", stats.getAttivi()));
+        pieChartData.add(new PieChart.Data("Completati (" + stats.getCompletati() + ")", stats.getCompletati()));
+        pieChartData.add(new PieChart.Data("Vuoti (" + stats.getVuoti() + ")", stats.getVuoti()));
         
         chartProgetti.setData(pieChartData);
         chartProgetti.setTitle("Distribuzione Progetti");

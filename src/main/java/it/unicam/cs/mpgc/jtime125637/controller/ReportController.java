@@ -4,15 +4,10 @@ import it.unicam.cs.mpgc.jtime125637.model.Activity;
 import it.unicam.cs.mpgc.jtime125637.model.ActivityRepository;
 import it.unicam.cs.mpgc.jtime125637.model.Project;
 import it.unicam.cs.mpgc.jtime125637.model.ProjectRepository;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
-@NoArgsConstructor
 public class ReportController {
     private final ProjectRepository projectRepository = new ProjectRepository();
     private final ActivityRepository activityRepository = new ActivityRepository();
@@ -117,13 +112,15 @@ public class ReportController {
         return String.format("%02d:%02d", ore, min);
     }
 
-    @Data
-    @NoArgsConstructor
+    // ========== Inner Classes (DTO senza Lombok) ==========
+
     public static class StatisticheProgetti {
         private int totale;
         private int attivi;
         private int completati;
         private int vuoti;
+
+        public StatisticheProgetti() {}
 
         public StatisticheProgetti(int totale, int attivi, int completati, int vuoti) {
             this.totale = totale;
@@ -131,16 +128,28 @@ public class ReportController {
             this.completati = completati;
             this.vuoti = vuoti;
         }
+
+        public int getTotale() { return totale; }
+        public void setTotale(int totale) { this.totale = totale; }
+
+        public int getAttivi() { return attivi; }
+        public void setAttivi(int attivi) { this.attivi = attivi; }
+
+        public int getCompletati() { return completati; }
+        public void setCompletati(int completati) { this.completati = completati; }
+
+        public int getVuoti() { return vuoti; }
+        public void setVuoti(int vuoti) { this.vuoti = vuoti; }
     }
 
-    @Data
-    @NoArgsConstructor
     public static class StatisticheAttivita {
         private int totale;
         private int completate;
         private int nonCompletate;
         private int pianificate;
         private int nonPianificate;
+
+        public StatisticheAttivita() {}
 
         public StatisticheAttivita(int totale, int completate, int nonCompletate, 
                                    int pianificate, int nonPianificate) {
@@ -150,15 +159,30 @@ public class ReportController {
             this.pianificate = pianificate;
             this.nonPianificate = nonPianificate;
         }
+
+        public int getTotale() { return totale; }
+        public void setTotale(int totale) { this.totale = totale; }
+
+        public int getCompletate() { return completate; }
+        public void setCompletate(int completate) { this.completate = completate; }
+
+        public int getNonCompletate() { return nonCompletate; }
+        public void setNonCompletate(int nonCompletate) { this.nonCompletate = nonCompletate; }
+
+        public int getPianificate() { return pianificate; }
+        public void setPianificate(int pianificate) { this.pianificate = pianificate; }
+
+        public int getNonPianificate() { return nonPianificate; }
+        public void setNonPianificate(int nonPianificate) { this.nonPianificate = nonPianificate; }
     }
 
-    @Data
-    @NoArgsConstructor
     public static class StatisticheGiorno {
         private int totaleProgrammate;
         private int completate;
         private int attive;
         private double percentualeCompletate;
+
+        public StatisticheGiorno() {}
 
         public StatisticheGiorno(int totaleProgrammate, int completate, int attive, 
                                  double percentualeCompletate) {
@@ -167,16 +191,28 @@ public class ReportController {
             this.attive = attive;
             this.percentualeCompletate = percentualeCompletate;
         }
+
+        public int getTotaleProgrammate() { return totaleProgrammate; }
+        public void setTotaleProgrammate(int totaleProgrammate) { this.totaleProgrammate = totaleProgrammate; }
+
+        public int getCompletate() { return completate; }
+        public void setCompletate(int completate) { this.completate = completate; }
+
+        public int getAttive() { return attive; }
+        public void setAttive(int attive) { this.attive = attive; }
+
+        public double getPercentualeCompletate() { return percentualeCompletate; }
+        public void setPercentualeCompletate(double percentualeCompletate) { this.percentualeCompletate = percentualeCompletate; }
     }
 
-    @Data
-    @NoArgsConstructor
     public static class StatisticheIntervallo {
         private int totaleAttivita;
         private int completate;
         private int totaleOreStimate;
         private int totaleOreEffettive;
         private int oreMancanti;
+
+        public StatisticheIntervallo() {}
 
         public StatisticheIntervallo(int totaleAttivita, int completate, 
                                      int totaleOreStimate, int totaleOreEffettive, 
@@ -187,5 +223,20 @@ public class ReportController {
             this.totaleOreEffettive = totaleOreEffettive;
             this.oreMancanti = oreMancanti;
         }
+
+        public int getTotaleAttivita() { return totaleAttivita; }
+        public void setTotaleAttivita(int totaleAttivita) { this.totaleAttivita = totaleAttivita; }
+
+        public int getCompletate() { return completate; }
+        public void setCompletate(int completate) { this.completate = completate; }
+
+        public int getTotaleOreStimate() { return totaleOreStimate; }
+        public void setTotaleOreStimate(int totaleOreStimate) { this.totaleOreStimate = totaleOreStimate; }
+
+        public int getTotaleOreEffettive() { return totaleOreEffettive; }
+        public void setTotaleOreEffettive(int totaleOreEffettive) { this.totaleOreEffettive = totaleOreEffettive; }
+
+        public int getOreMancanti() { return oreMancanti; }
+        public void setOreMancanti(int oreMancanti) { this.oreMancanti = oreMancanti; }
     }
 }
