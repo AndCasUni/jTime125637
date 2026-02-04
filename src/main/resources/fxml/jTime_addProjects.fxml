@@ -24,9 +24,9 @@
             <TableColumn minWidth="0.0" prefWidth="57.5999755859375" text="Elimin" />
         </columns>
       </TableView>
-      <Button layoutX="25.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Salva" />
-      <Button layoutX="76.0" layoutY="302.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Elimina" />
-      <Button layoutX="131.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Pulisci" />
-      <CheckBox layoutX="412.0" layoutY="24.0" mnemonicParsing="false" text="Mostra solo eliminabili" />
+      <Button fx:id="add_salva" layoutX="25.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Salva" />
+      <Button fx:id="add_delete" layoutX="76.0" layoutY="302.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Elimina" />
+      <Button fx:id="add_clean" layoutX="131.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Pulisci" />
+      <CheckBox fx:id="add_solocanc" layoutX="412.0" layoutY="24.0" mnemonicParsing="false" text="Mostra solo eliminabili" />
    </children>
 </AnchorPane>

@@ -11,16 +11,16 @@
 
 <AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
    <children>
-      <Button layoutX="28.0" layoutY="244.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Salva" />
-      <Button layoutX="115.0" layoutY="244.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Pulisci" />
+      <Button fx:id="new_salva" layoutX="28.0" layoutY="244.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Salva" />
+      <Button fx:id="new_clean" layoutX="115.0" layoutY="244.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Pulisci" />
       <Label layoutX="27.0" layoutY="22.0" text="Nome" />
       <Label layoutX="27.0" layoutY="83.0" text="Descrizione" />
       <Label layoutX="30.0" layoutY="144.0" text="Stima tempo" />
-      <ChoiceBox layoutX="30.0" layoutY="175.0" prefHeight="26.0" prefWidth="50.0" />
-      <ChoiceBox layoutX="90.0" layoutY="175.0" prefHeight="26.0" prefWidth="50.0" />
-      <TextField layoutX="27.0" layoutY="48.0" />
-      <TextField layoutX="27.0" layoutY="108.0" />
-      <TableView layoutX="214.0" layoutY="77.0" prefHeight="303.0" prefWidth="378.0">
+      <ChoiceBox fx:id="new_hh" layoutX="30.0" layoutY="175.0" prefHeight="26.0" prefWidth="50.0" />
+      <ChoiceBox fx:id="new_mm" layoutX="90.0" layoutY="175.0" prefHeight="26.0" prefWidth="50.0" />
+      <TextField fx:id="new_nome" layoutX="27.0" layoutY="48.0" />
+      <TextField fx:id="new_desc" layoutX="27.0" layoutY="108.0" />
+      <TableView fx:id="new_tasktable" layoutX="214.0" layoutY="77.0" prefHeight="303.0" prefWidth="378.0">
         <columns>
           <TableColumn prefWidth="60.79998779296875" text="ID" />
           <TableColumn prefWidth="80.800048828125" text="Nome" />
@@ -28,8 +28,8 @@
             <TableColumn prefWidth="71.20001220703125" text="Eliminabile" />
         </columns>
       </TableView>
-      <CheckBox layoutX="403.0" layoutY="39.0" mnemonicParsing="false" text="Mostra solo eliminabili" />
-      <Button layoutX="70.0" layoutY="322.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Elimina" />
+      <CheckBox fx:id="new_solocanc" layoutX="403.0" layoutY="39.0" mnemonicParsing="false" text="Mostra solo eliminabili" />
+      <Button fx:id="new_del" layoutX="70.0" layoutY="322.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Elimina" />
       <Label layoutX="214.0" layoutY="39.0" text="Ultime attività inserite" />
    </children>
 </AnchorPane>
