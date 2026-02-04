@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="it.unicam.cs.mpgc.jtime125637.model">
+    <class name="Activity" table="activities">
+        <id name="id" column="id" type="java.lang.Integer">
+            <generator class="native"/>
+        </id>
+        
+        <property name="nome" column="nome" type="string" not-null="true" length="255"/>
+        <property name="descrizione" column="descrizione" type="text"/>
+        <property name="stimaTempo" column="stima_tempo" type="string" length="5"/>
+        <property name="durataEffettiva" column="durata_effettiva" type="string" length="5"/>
+        <property name="dataPianificazione" column="data_pianificazione" type="date"/>
+        <property name="eliminabile" column="eliminabile" type="boolean" not-null="true"/>
+        
+        <!-- Many-to-One con Project -->
+        <many-to-one name="project" class="Project" column="progetto_fk" not-null="false" lazy="false"/>
+    </class>
+</hibernate-mapping>

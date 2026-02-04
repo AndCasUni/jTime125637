@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE hibernate-mapping PUBLIC
+        "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+        "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping package="it.unicam.cs.mpgc.jtime125637.model">
+    <class name="Project" table="projects">
+        <id name="id" column="id" type="java.lang.Integer">
+            <generator class="native"/>
+        </id>
+        
+        <property name="nome" column="nome" type="string" not-null="true" length="255"/>
+        <property name="descrizione" column="descrizione" type="text"/>
+        <property name="stato" column="stato" type="string" not-null="true" length="50"/>
+        
+        <!-- One-to-Many con Activity -->
+        <set name="activities" inverse="true" cascade="all-delete-orphan" lazy="false">
+            <key column="progetto_fk"/>
+            <one-to-many class="Activity"/>
+        </set>
+    </class>
+</hibernate-mapping>
