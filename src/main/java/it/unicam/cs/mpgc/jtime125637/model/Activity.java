@@ -76,4 +76,11 @@ public class Activity {
     public boolean isAttiva() {
         return !isCompletata();
     }
+
+    @Override
+    public String toString() {
+        return (id != null ? id + ": " : "") + nome;
+    }
+
+
 }
