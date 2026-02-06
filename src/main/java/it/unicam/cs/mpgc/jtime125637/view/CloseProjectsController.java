@@ -11,6 +11,8 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @NoArgsConstructor
 public class CloseProjectsController {
     private final ProjectController projectController = new ProjectController();
@@ -29,6 +31,7 @@ public class CloseProjectsController {
     @FXML private RadioButton filterCompletati;
     @FXML private RadioButton filterVuoti;
     @FXML private Button closeButton;
+
 
     @FXML
     public void initialize() {
@@ -85,6 +88,47 @@ public class CloseProjectsController {
         });
     }
 
+    /*@FXML
+    private void cercaProgetti() {
+        projects.clear();
+
+        Integer id = null;
+        if (close_id != null && !close_id.getText().isBlank()) {
+            try {
+                id = Integer.parseInt(close_id.getText().trim());
+            } catch (NumberFormatException e) {
+                mostraMessaggio("Errore", "ID non valido", Alert.AlertType.ERROR);
+                return;
+            }
+        }
+
+        String nome = (close_nome != null) ? close_nome.getText().trim() : "";
+
+        // recupero tutti i progetti secondo filtro stato
+        List<Project> lista;
+        if (checkAttivo.isSelected() && !checkCompleto.isSelected()) {
+            lista = projectController.getProgettiAttivi();
+        } else if (!checkAttivo.isSelected() && checkCompleto.isSelected()) {
+            lista = projectController.getProgettiCompletati();
+        } else {
+            // entrambi selezionati o nessuno → tutti
+            lista = projectController.getTuttiProgetti();
+        }
+
+        // filtra per id e nome se presenti
+        lista.stream()
+                .filter(p -> id == null || p.getId().equals(id))
+                .filter(p -> nome.isEmpty() || p.getNome().toLowerCase().contains(nome.toLowerCase()))
+                .forEach(projects::add);
+
+        // aggiorna eventuale selezione e tabella attività
+        activities.clear();
+        Project selected = projectsList.getSelectionModel().getSelectedItem();
+        if (selected != null) {
+            caricaAttivitaProgetto(selected.getId());
+        }
+    }
+*/
     @FXML
     private void chiudiProgetto() {
         Project selected = projectsList.getSelectionModel().getSelectedItem();

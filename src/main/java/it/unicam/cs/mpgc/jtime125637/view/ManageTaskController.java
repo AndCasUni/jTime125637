@@ -69,12 +69,13 @@ public class ManageTaskController {
     }
 
     private void caricaProgetti() {
-        ObservableList<Project> progetti = FXCollections.observableArrayList(
-            projectController.getProgettiAttivi()
-        );
+        ObservableList<Project> progetti = FXCollections.observableArrayList();
+        progetti.add(null); 
+        progetti.addAll(projectController.getProgettiAttivi());
         manage_task.setItems(progetti);
         manage_assegna.setItems(progetti);
     }
+
 
     @FXML
     private void cercaAttivita() {
@@ -84,7 +85,7 @@ public class ManageTaskController {
                 id = Integer.parseInt(manage_cerca_id.getText());
             }
             String nome = manage_cerca_nome.getText();
-            Integer projectId = manage_task.getValue() != null ? 
+            Integer projectId = manage_task.getValue() != null ?
                 manage_task.getValue().getId() : null;
 
             activities.clear();

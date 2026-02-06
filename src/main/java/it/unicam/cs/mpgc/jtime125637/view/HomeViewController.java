@@ -8,14 +8,15 @@ import javafx.stage.Stage;
 import lombok.NoArgsConstructor;
 
 import java.io.IOException;
+import java.net.URL;
 
 @NoArgsConstructor
 public class HomeViewController {
 
-    @FXML
-    private void openAddTask() {
-        openView("/fxml/jTime_addTask.fxml", "Crea Attività");
-    }
+	@FXML
+	private void openAddTask() {
+	    openView("/fxml/jTime_addTask.fxml", "Crea Attività");
+	}
 
     @FXML
     private void openAddProjects() {
@@ -46,13 +47,21 @@ public class HomeViewController {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
             Parent root = loader.load();
+
+            Scene scene = new Scene(root);
+            URL cssUrl = getClass().getResource("/css/style.css");
+            if (cssUrl != null) {
+                scene.getStylesheets().add(cssUrl.toExternalForm());
+            }
+
             Stage stage = new Stage();
             stage.setTitle(title);
-            stage.setScene(new Scene(root));
+            stage.setScene(scene);
             stage.show();
         } catch (IOException e) {
             System.err.println("Errore nel caricamento della vista: " + e.getMessage());
             e.printStackTrace();
         }
     }
+
 }

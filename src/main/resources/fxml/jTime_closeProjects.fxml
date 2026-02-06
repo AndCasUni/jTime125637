@@ -7,14 +7,14 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" >
    <children>
-      <Button fx:id="close_close" layoutX="347.0" layoutY="35.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="190.0" text="Chiudi progetto" />
+      <Button fx:id="close_close" layoutX="347.0" layoutY="35.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="190.0" text="Chiudi progetto"  />
       <TableView fx:id="projTable" layoutX="14.0" layoutY="119.0" prefHeight="275.0" prefWidth="251.0">
         <columns>
           <TableColumn prefWidth="35.20001220703125" text="ID" />
-          <TableColumn prefWidth="125.60003662109375" text="Nome" />
-            <TableColumn prefWidth="88.79998779296875" text="Stato" />
+          <TableColumn  prefWidth="125.60003662109375" text="Nome" />
+            <TableColumn  prefWidth="88.79998779296875" text="Stato" />
         </columns>
       </TableView>
       <TableView fx:id="taskTable" layoutX="295.0" layoutY="119.0" prefHeight="275.0" prefWidth="294.0">

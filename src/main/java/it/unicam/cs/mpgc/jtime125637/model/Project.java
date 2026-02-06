@@ -54,4 +54,9 @@ public class Project {
         }
         return activities.stream().allMatch(Activity::isCompletata);
     }
+
+    @Override
+    public String toString() {
+        return (id != null ? id + ": " : "") + nome;
+    }
 }

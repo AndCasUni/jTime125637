@@ -7,27 +7,28 @@ import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
 
+import java.io.IOException;
+import java.net.URL;
+
 public class Main extends Application {
 
     @Override
-    public void start(Stage primaryStage) {
-        try {
-            FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/jTime_home.fxml"));
-            Parent root = loader.load();
-            
-            Scene scene = new Scene(root);
-            scene.getStylesheets().add(getClass().getResource("/css/application.css").toExternalForm());
-            
-            primaryStage.setTitle("jTime - Gestione Attività e Progetti");
-            primaryStage.setScene(scene);
-            primaryStage.setResizable(false);
-            primaryStage.show();
-            
-        } catch (Exception e) {
-            System.err.println("Errore nel caricamento dell'interfaccia: " + e.getMessage());
-            e.printStackTrace();
+    public void start(Stage primaryStage) throws IOException {
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/fxml/jTime_home.fxml"));
+        Parent root = loader.load();
+        Scene scene = new Scene(root);
+
+        URL cssUrl = getClass().getResource("/css/application.css");
+        if (cssUrl != null) {
+            scene.getStylesheets().add(cssUrl.toExternalForm());
         }
+
+        primaryStage.setTitle("jTime - Gestione Attività e Progetti");
+        primaryStage.setScene(scene);
+        primaryStage.setResizable(true);
+        primaryStage.show();
     }
+
 
     @Override
     public void stop() {

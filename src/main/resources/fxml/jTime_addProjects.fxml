@@ -9,7 +9,7 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1">
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="650.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jtime125637.view.AddProjectsController" >
    <children>
       <Label layoutX="261.0" layoutY="23.0" prefHeight="18.0" prefWidth="150.0" text="Ultimi progetti inseriti" />
       <TextField fx:id="addName" layoutX="25.0" layoutY="47.0" />
@@ -18,15 +18,15 @@
       <TextArea fx:id="addDesc" layoutX="26.0" layoutY="120.0" prefHeight="66.0" prefWidth="222.0" />
       <TableView fx:id="projectsTable" layoutX="261.0" layoutY="60.0" prefHeight="328.0" prefWidth="333.0">
         <columns>
-          <TableColumn prefWidth="55.199951171875" text="ID" />
-          <TableColumn prefWidth="63.2000732421875" text="Nome" />
-            <TableColumn prefWidth="157.60003662109375" text="Descizione" />
-            <TableColumn minWidth="0.0" prefWidth="57.5999755859375" text="Elimin" />
+          <TableColumn fx:id="colId" prefWidth="55.199951171875" text="ID" />
+          <TableColumn fx:id="colNome" prefWidth="63.2000732421875" text="Nome" />
+            <TableColumn fx:id="colDescrizione" prefWidth="157.60003662109375" text="Descizione" />
+            <TableColumn fx:id="colEliminabile" minWidth="0.0" prefWidth="57.5999755859375" text="Elimin" />
         </columns>
       </TableView>
-      <Button fx:id="add_salva" layoutX="25.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Salva" />
-      <Button fx:id="add_delete" layoutX="76.0" layoutY="302.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Elimina" />
-      <Button fx:id="add_clean" layoutX="131.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Pulisci" />
+      <Button fx:id="add_salva" layoutX="25.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Salva" onAction="#salvaNuovoProgetto"/>
+      <Button fx:id="add_delete" layoutX="76.0" layoutY="302.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Elimina" onAction="#eliminaProgetto"/>
+      <Button fx:id="add_clean" layoutX="131.0" layoutY="234.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="63.0" text="Pulisci" onAction="#pulisciForm" />
       <CheckBox fx:id="add_solocanc" layoutX="412.0" layoutY="24.0" mnemonicParsing="false" text="Mostra solo eliminabili" />
    </children>
 </AnchorPane>
