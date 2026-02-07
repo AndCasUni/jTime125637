@@ -7,27 +7,27 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" >
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jtime125637.view.CloseProjectsController">
    <children>
-      <Button fx:id="close_close" layoutX="347.0" layoutY="35.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="190.0" text="Chiudi progetto"  />
+      <Button fx:id="close_close" layoutX="347.0" layoutY="35.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="190.0" text="Chiudi progetto"  onAction="#chiudiProgetto"/>
       <TableView fx:id="projTable" layoutX="14.0" layoutY="119.0" prefHeight="275.0" prefWidth="251.0">
         <columns>
-          <TableColumn prefWidth="35.20001220703125" text="ID" />
-          <TableColumn  prefWidth="125.60003662109375" text="Nome" />
-            <TableColumn  prefWidth="88.79998779296875" text="Stato" />
+          <TableColumn fx:id="colIdProj" prefWidth="35.20001220703125" text="ID" />
+          <TableColumn  fx:id="colNomeProj" prefWidth="125.60003662109375" text="Nome" />
+            <TableColumn  fx:id="colStatoProj" prefWidth="88.79998779296875" text="Stato" />
         </columns>
       </TableView>
       <TableView fx:id="taskTable" layoutX="295.0" layoutY="119.0" prefHeight="275.0" prefWidth="294.0">
         <columns>
-          <TableColumn prefWidth="48.00006103515625" text="ID" />
-          <TableColumn prefWidth="99.199951171875" text="Nome" />
-            <TableColumn prefWidth="75.20001220703125" text="Stima" />
-            <TableColumn prefWidth="71.20001220703125" text="Effettivo" />
+          <TableColumn fx:id="colIdTask" prefWidth="48.00006103515625" text="ID" />
+          <TableColumn fx:id="colNomeTask" prefWidth="99.199951171875" text="Nome" />
+            <TableColumn fx:id="colStimaTask" prefWidth="75.20001220703125" text="Stima" />
+            <TableColumn fx:id="colEffettivoTask" prefWidth="71.20001220703125" text="Effettivo" />
         </columns>
       </TableView>
       <CheckBox fx:id="checkAttivo" layoutX="14.0" layoutY="76.0" mnemonicParsing="false" text="Attivi" />
       <CheckBox fx:id="checkCompleto" layoutX="99.0" layoutY="76.0" mnemonicParsing="false" text="Completati" />
-      <Button fx:id="close_cerca" layoutX="215.0" layoutY="72.0" mnemonicParsing="false" text="Cerca" />
+      <Button fx:id="close_cerca" layoutX="215.0" layoutY="72.0" mnemonicParsing="false" text="Cerca" onAction="#cercaProgetti"/>
       <TextField fx:id="close_id" layoutX="14.0" layoutY="20.0" prefHeight="26.0" prefWidth="116.0" promptText="Cerca per id" />
       <TextField fx:id="close_nome" layoutX="145.0" layoutY="20.0" prefHeight="26.0" prefWidth="116.0" promptText="Cerca per nome" />
    </children>

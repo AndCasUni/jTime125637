@@ -31,7 +31,8 @@ public class Main extends Application {
 
 
     @Override
-    public void stop() {
+    public void stop() throws Exception {
+        super.stop();
         HibernateUtil.shutdown();
         System.out.println("Applicazione chiusa correttamente");
     }

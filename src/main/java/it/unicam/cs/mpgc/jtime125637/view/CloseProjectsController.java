@@ -20,130 +20,119 @@ public class CloseProjectsController {
     private final ObservableList<Project> projects = FXCollections.observableArrayList();
     private final ObservableList<Activity> activities = FXCollections.observableArrayList();
 
-    @FXML private ListView<Project> projectsList;
-    @FXML private TableView<Activity> activitiesTable;
-    @FXML private TableColumn<Activity, Integer> colId;
-    @FXML private TableColumn<Activity, String> colNome;
-    @FXML private TableColumn<Activity, String> colDescrizione;
-    @FXML private TableColumn<Activity, String> colStima;
-    @FXML private TableColumn<Activity, String> colEffettivo;
-    @FXML private RadioButton filterAttivi;
-    @FXML private RadioButton filterCompletati;
-    @FXML private RadioButton filterVuoti;
-    @FXML private Button closeButton;
+    @FXML private TableView<Project> projTable;
+    @FXML private TableColumn<Project, Integer> colIdProj;
+    @FXML private TableColumn<Project, String> colNomeProj;
+    @FXML private TableColumn<Project, String> colStatoProj;
 
+    @FXML private TableView<Activity> taskTable;
+    @FXML private TableColumn<Activity, Integer> colIdTask;
+    @FXML private TableColumn<Activity, String> colNomeTask;
+    @FXML private TableColumn<Activity, String> colStimaTask;
+    @FXML private TableColumn<Activity, String> colEffettivoTask;
+
+    @FXML private CheckBox checkAttivo;
+    @FXML private CheckBox checkCompleto;
+    @FXML private TextField close_id;
+    @FXML private TextField close_nome;
+    @FXML private Button close_cerca;
+    @FXML private Button close_close;
 
     @FXML
     public void initialize() {
-        inizializzaTabella();
+        inizializzaTabelle();
         impostaListeners();
-        caricaProgettiAttivi();
+        caricaProgettiAttivi();  // Default: attivi
     }
 
-    private void inizializzaTabella() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
-        colDescrizione.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
-        colStima.setCellValueFactory(new PropertyValueFactory<>("stimaTempo"));
-        colEffettivo.setCellValueFactory(new PropertyValueFactory<>("durataEffettiva"));
-        activitiesTable.setItems(activities);
+    private void inizializzaTabelle() {
+        // Progetti
+        colIdProj.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colNomeProj.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        colStatoProj.setCellValueFactory(new PropertyValueFactory<>("stato"));
+        projTable.setItems(projects);
+
+        // Task
+        colIdTask.setCellValueFactory(new PropertyValueFactory<>("id"));
+        colNomeTask.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        colStimaTask.setCellValueFactory(new PropertyValueFactory<>("stimaTempo"));
+        colEffettivoTask.setCellValueFactory(new PropertyValueFactory<>("durataEffettiva"));
+        taskTable.setItems(activities);
     }
 
     private void impostaListeners() {
-        projectsList.setItems(projects);
-        projectsList.setCellFactory(lv -> new ListCell<>() {
-            @Override
-            protected void updateItem(Project project, boolean empty) {
-                super.updateItem(project, empty);
-                if (empty || project == null) {
-                    setText(null);
-                } else {
-                    setText(project.getNome() + " - " + project.getStato());
+        projTable.getSelectionModel().selectedItemProperty().addListener(
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        caricaAttivitaProgetto(newSelection.getId());
+                    } else {
+                        activities.clear();
+                    }
                 }
-            }
-        });
-
-        projectsList.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldSelection, newSelection) -> {
-                if (newSelection != null) {
-                    caricaAttivitaProgetto(newSelection.getId());
-                }
-            }
         );
 
-        ToggleGroup group = new ToggleGroup();
-        filterAttivi.setToggleGroup(group);
-        filterCompletati.setToggleGroup(group);
-        filterVuoti.setToggleGroup(group);
-        filterAttivi.setSelected(true);
-
-        filterAttivi.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) caricaProgettiAttivi();
-        });
-        filterCompletati.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) caricaProgettiCompletati();
-        });
-        filterVuoti.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) caricaProgettiVuoti();
-        });
+        checkAttivo.selectedProperty().addListener((obs, oldVal, newVal) -> aggiornaProgetti());
+        checkCompleto.selectedProperty().addListener((obs, oldVal, newVal) -> aggiornaProgetti());
     }
 
-    /*@FXML
+    @FXML
     private void cercaProgetti() {
         projects.clear();
-
-        Integer id = null;
-        if (close_id != null && !close_id.getText().isBlank()) {
+        Integer idnf = null;
+        if (close_id != null && !close_id.getText().trim().isEmpty()) {
             try {
-                id = Integer.parseInt(close_id.getText().trim());
+                idnf = Integer.parseInt(close_id.getText().trim());
             } catch (NumberFormatException e) {
                 mostraMessaggio("Errore", "ID non valido", Alert.AlertType.ERROR);
                 return;
             }
         }
+        String nome = close_nome != null ? close_nome.getText().trim() : "";
 
-        String nome = (close_nome != null) ? close_nome.getText().trim() : "";
-
-        // recupero tutti i progetti secondo filtro stato
         List<Project> lista;
         if (checkAttivo.isSelected() && !checkCompleto.isSelected()) {
             lista = projectController.getProgettiAttivi();
         } else if (!checkAttivo.isSelected() && checkCompleto.isSelected()) {
             lista = projectController.getProgettiCompletati();
         } else {
-            // entrambi selezionati o nessuno → tutti
             lista = projectController.getTuttiProgetti();
         }
 
-        // filtra per id e nome se presenti
+        final Integer id = idnf;
         lista.stream()
                 .filter(p -> id == null || p.getId().equals(id))
                 .filter(p -> nome.isEmpty() || p.getNome().toLowerCase().contains(nome.toLowerCase()))
                 .forEach(projects::add);
 
-        // aggiorna eventuale selezione e tabella attività
+        // Reset selezione task
         activities.clear();
-        Project selected = projectsList.getSelectionModel().getSelectedItem();
-        if (selected != null) {
-            caricaAttivitaProgetto(selected.getId());
-        }
     }
-*/
+
     @FXML
     private void chiudiProgetto() {
-        Project selected = projectsList.getSelectionModel().getSelectedItem();
+        Project selected = projTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
             mostraMessaggio("Attenzione", "Seleziona un progetto", Alert.AlertType.WARNING);
             return;
         }
-
         try {
             projectController.chiudiProgetto(selected.getId());
             mostraMessaggio("Successo", "Progetto chiuso con successo", Alert.AlertType.INFORMATION);
-            caricaProgettiAttivi();
+            aggiornaProgetti();  // Ricarica in base ai filtri correnti
             activities.clear();
         } catch (Exception e) {
             mostraMessaggio("Errore", e.getMessage(), Alert.AlertType.ERROR);
+        }
+    }
+
+    private void aggiornaProgetti() {
+        if (checkAttivo.isSelected() && !checkCompleto.isSelected()) {
+            caricaProgettiAttivi();
+        } else if (!checkAttivo.isSelected() && checkCompleto.isSelected()) {
+            caricaProgettiCompletati();
+        } else {
+            projects.clear();
+            projects.addAll(projectController.getTuttiProgetti());
         }
     }
 
@@ -155,11 +144,6 @@ public class CloseProjectsController {
     private void caricaProgettiCompletati() {
         projects.clear();
         projects.addAll(projectController.getProgettiCompletati());
-    }
-
-    private void caricaProgettiVuoti() {
-        projects.clear();
-        projects.addAll(projectController.getProgettiVuoti());
     }
 
     private void caricaAttivitaProgetto(Integer projectId) {
