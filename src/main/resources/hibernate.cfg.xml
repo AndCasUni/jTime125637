@@ -4,29 +4,16 @@
         "http://www.hibernate.org/dtd/hibernate-configuration-3.0.dtd">
 <hibernate-configuration>
     <session-factory>
-        <!-- Configurazione database H2 embedded locale -->
         <property name="hibernate.connection.driver_class">org.h2.Driver</property>
         <property name="hibernate.connection.url">jdbc:h2:file:./data/jtime;AUTO_SERVER=TRUE</property>
         <property name="hibernate.connection.username">sa</property>
         <property name="hibernate.connection.password"></property>
-        
-        <!-- Dialect H2 -->
         <property name="hibernate.dialect">org.hibernate.dialect.H2Dialect</property>
-        
-        <!-- Auto-creazione schema database -->
         <property name="hibernate.hbm2ddl.auto">update</property>
-        
-        <!-- Mostra SQL in console per debug -->
         <property name="hibernate.show_sql">true</property>
         <property name="hibernate.format_sql">true</property>
-        
-        <!-- Connection pool settings -->
         <property name="hibernate.connection.pool_size">10</property>
-        
-        <!-- Enable current session context -->
         <property name="hibernate.current_session_context_class">thread</property>
-        
-        <!-- Mapping files -->
         <mapping resource="mappings/Project.hbm.xml"/>
         <mapping resource="mappings/Activity.hbm.xml"/>
     </session-factory>
