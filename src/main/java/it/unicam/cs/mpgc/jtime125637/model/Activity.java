@@ -1,6 +1,7 @@
 package it.unicam.cs.mpgc.jtime125637.model;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 public class Activity {
     private Integer id;
@@ -8,7 +9,7 @@ public class Activity {
     private String descrizione;
     private String stimaTempo;
     private String durataEffettiva = "00:00";
-    private LocalDate dataPianificazione;
+    private Date dataPianificazione;
     private boolean eliminabile = true;
     private Project project;
 
@@ -43,8 +44,8 @@ public class Activity {
         }
     }
 
-    public LocalDate getDataPianificazione() { return dataPianificazione; }
-    public void setDataPianificazione(LocalDate dataPianificazione) {
+    public Date getDataPianificazione() { return dataPianificazione; }
+    public void setDataPianificazione(Date dataPianificazione) {
         this.dataPianificazione = dataPianificazione;
         if (dataPianificazione != null) {
             this.eliminabile = false;
@@ -76,11 +77,4 @@ public class Activity {
     public boolean isAttiva() {
         return !isCompletata();
     }
-
-    @Override
-    public String toString() {
-        return (id != null ? id + ": " : "") + nome;
-    }
-
-
 }

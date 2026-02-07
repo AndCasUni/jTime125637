@@ -7,6 +7,7 @@ import it.unicam.cs.mpgc.jtime125637.model.ProjectRepository;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.sql.Date;
 import java.util.List;
 
 @NoArgsConstructor
@@ -74,9 +75,11 @@ public class ActivityController {
         if (activity == null) {
             throw new IllegalArgumentException("Attività non trovata");
         }
-        activity.setDataPianificazione(data);
+        Date dataSql = Date.valueOf(data);
+        activity.setDataPianificazione(dataSql);
         activityRepository.update(activity);
     }
+
 
     public void associaProgetto(Integer activityId, Integer projectId) {
         if (activityId == null || projectId == null) {

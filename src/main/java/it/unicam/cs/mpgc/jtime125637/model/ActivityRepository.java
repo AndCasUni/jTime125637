@@ -66,7 +66,7 @@ public class ActivityRepository {
 
     public List<Activity> findAll() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.createQuery("FROM Activity a ORDER BY a.id DESC", Activity.class).list();
+            return session.createQuery("FROM Activity ORDER BY id DESC", Activity.class).list();
         } catch (Exception e) {
             throw new RuntimeException("Errore nel recupero delle attività", e);
         }
@@ -75,7 +75,7 @@ public class ActivityRepository {
     public List<Activity> findByProject(Integer projectId) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<Activity> query = session.createQuery(
-                    "FROM Activity a WHERE a.project.id = :projectId ORDER BY a.id DESC",
+                    "FROM Activity WHERE project.id = :projectId ORDER BY id DESC", 
                     Activity.class);
             query.setParameter("projectId", projectId);
             return query.list();
@@ -88,34 +88,34 @@ public class ActivityRepository {
                                         boolean completate, boolean pianificate,
                                         boolean assegnate, boolean attive) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            StringBuilder hql = new StringBuilder("FROM Activity a WHERE 1=1");
-
+            StringBuilder hql = new StringBuilder("FROM Activity WHERE 1=1");
+            
             if (id != null) {
-                hql.append(" AND a.id = :id");
+                hql.append(" AND id = :id");
             }
             if (nome != null && !nome.trim().isEmpty()) {
-                hql.append(" AND LOWER(a.nome) LIKE LOWER(:nome)");
+                hql.append(" AND LOWER(nome) LIKE LOWER(:nome)");
             }
             if (projectId != null) {
-                hql.append(" AND a.project.id = :projectId");
+                hql.append(" AND project.id = :projectId");
             }
             if (completate) {
-                hql.append(" AND a.durataEffettiva IS NOT NULL AND a.durataEffettiva != '00:00'");
+                hql.append(" AND durataEffettiva IS NOT NULL AND durataEffettiva != '00:00'");
             }
             if (pianificate) {
-                hql.append(" AND a.dataPianificazione IS NOT NULL");
+                hql.append(" AND dataPianificazione IS NOT NULL");
             }
             if (assegnate) {
-                hql.append(" AND a.project IS NOT NULL");
+                hql.append(" AND project IS NOT NULL");
             }
             if (attive) {
-                hql.append(" AND (a.durataEffettiva IS NULL OR a.durataEffettiva = '00:00')");
+                hql.append(" AND (durataEffettiva IS NULL OR durataEffettiva = '00:00')");
             }
-
-            hql.append(" ORDER BY a.id DESC");
-
+            
+            hql.append(" ORDER BY id DESC");
+            
             Query<Activity> query = session.createQuery(hql.toString(), Activity.class);
-
+            
             if (id != null) {
                 query.setParameter("id", id);
             }
@@ -125,7 +125,7 @@ public class ActivityRepository {
             if (projectId != null) {
                 query.setParameter("projectId", projectId);
             }
-
+            
             return query.list();
         } catch (Exception e) {
             throw new RuntimeException("Errore nella ricerca filtrata", e);
@@ -135,7 +135,7 @@ public class ActivityRepository {
     public List<Activity> findByDate(LocalDate data) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<Activity> query = session.createQuery(
-                    "FROM Activity a WHERE a.dataPianificazione = :data ORDER BY a.id DESC",
+                    "FROM Activity WHERE dataPianificazione = :data ORDER BY id DESC", 
                     Activity.class);
             query.setParameter("data", data);
             return query.list();
@@ -147,7 +147,7 @@ public class ActivityRepository {
     public List<Activity> findByDateRange(LocalDate start, LocalDate end) {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             Query<Activity> query = session.createQuery(
-                    "FROM Activity a WHERE a.dataPianificazione BETWEEN :start AND :end ORDER BY a.dataPianificazione",
+                    "FROM Activity WHERE dataPianificazione BETWEEN :start AND :end ORDER BY dataPianificazione", 
                     Activity.class);
             query.setParameter("start", start);
             query.setParameter("end", end);
@@ -160,7 +160,7 @@ public class ActivityRepository {
     public List<Activity> findEliminabili() {
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
             return session.createQuery(
-                    "FROM Activity a WHERE a.eliminabile = true ORDER BY a.id DESC",
+                    "FROM Activity WHERE eliminabile = true ORDER BY id DESC", 
                     Activity.class).list();
         } catch (Exception e) {
             throw new RuntimeException("Errore nel recupero attività eliminabili", e);

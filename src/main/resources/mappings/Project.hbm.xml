@@ -13,9 +13,9 @@
         <property name="stato" column="stato" type="string" not-null="true" length="50"/>
         
         <!-- One-to-Many con Activity -->
-        <set name="activities" inverse="true" cascade="all-delete-orphan" lazy="true">
+        <set name="activities" inverse="true" cascade="all-delete-orphan" lazy="false">
             <key column="progetto_fk"/>
-            <one-to-many class="it.unicam.cs.mpgc.jtime125637.model.Activity"/>
+            <one-to-many class="Activity"/>
         </set>
     </class>
 </hibernate-mapping>

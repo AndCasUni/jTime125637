@@ -33,8 +33,6 @@ public class ManageTaskController {
     @FXML private ChoiceBox<Project> manage_assegna;
     @FXML private ChoiceBox<String> manage_hh;
     @FXML private ChoiceBox<String> manage_mm;
-    @FXML private Button manage_save;
-    @FXML private Button manage_clean;
 
     @FXML
     public void initialize() {

@@ -14,6 +14,7 @@
         <property name="durataEffettiva" column="durata_effettiva" type="string" length="5"/>
         <property name="dataPianificazione" column="data_pianificazione" type="date"/>
         <property name="eliminabile" column="eliminabile" type="boolean" not-null="true"/>
+
         <!-- Many-to-One con Project -->
         <many-to-one name="project" class="Project" column="progetto_fk" not-null="false" lazy="false"/>
     </class>
