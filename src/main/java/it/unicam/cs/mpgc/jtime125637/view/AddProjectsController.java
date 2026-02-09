@@ -37,36 +37,99 @@ public class AddProjectsController {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colDescrizione.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
-        colEliminabile.setCellValueFactory(cellData -> 
-            new javafx.beans.property.SimpleBooleanProperty(cellData.getValue().isEmpty())
-        );
+
+        // Usa isEliminabile() della classe Project
+        colEliminabile.setCellValueFactory(new PropertyValueFactory<>("eliminabile"));
+
+        // Stile visivo ✅/❌
+        colEliminabile.setCellFactory(col -> new TableCell<Project, Boolean>() {
+            @Override
+            protected void updateItem(Boolean item, boolean empty) {
+                super.updateItem(item, empty);
+                if (empty || item == null) {
+                    setText(null);
+                    setStyle("");
+                } else {
+                    setText(item ? "✅ Sì" : "❌ No");
+                    setStyle(item ?
+                            "-fx-background-color: #d4edda; -fx-text-fill: green;" :
+                            "-fx-background-color: #f8d7da; -fx-text-fill: red;");
+                }
+            }
+        });
+
         projectsTable.setItems(projects);
     }
 
     private void impostaListeners() {
         projectsTable.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldSelection, newSelection) -> {
-                if (newSelection != null) {
-                    caricaProgettoInForm(newSelection);
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        caricaProgettoInForm(newSelection);
+                        aggiornaStatoModifica(newSelection.isEliminabile());
+                    } else {
+                        aggiornaStatoModifica(true); // Modalità "nuovo"
+                    }
                 }
-            }
         );
 
-        add_solocanc.selectedProperty().addListener((obs, oldVal, newVal) -> caricaProgetti());
+        add_solocanc.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            caricaProgetti();
+            add_delete.setDisable(true);
+        });
+    }
+
+    /** 🎯 Controlla isEliminabile() per abilitare modifica */
+    private void aggiornaStatoModifica(boolean modificabile) {
+        addName.setEditable(modificabile);
+        addDesc.setEditable(modificabile);
+        add_salva.setDisable(!modificabile);
+        add_delete.setDisable(!modificabile);
+
+        if (!modificabile) {
+            addName.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: gray;");
+            addDesc.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: gray;");
+        } else {
+            addName.setStyle("");
+            addDesc.setStyle("");
+        }
     }
 
     @FXML
     private void salvaNuovoProgetto() {
-        try {
-            String nome = addName.getText();
-            String descrizione = addDesc.getText();
+        Project selected = projectsTable.getSelectionModel().getSelectedItem();
 
-            projectController.creaProgetto(nome, descrizione);
-            mostraMessaggio("Successo", "Progetto creato con successo", Alert.AlertType.INFORMATION);
+        try {
+            String nome = addName.getText().trim();
+            String descrizione = addDesc.getText().trim();
+
+            if (nome.isEmpty()) {
+                mostraMessaggio("❌ Errore", "Il nome è obbligatorio", Alert.AlertType.ERROR);
+                return;
+            }
+
+            if (selected == null) {
+                // 🆕 NUOVO progetto
+                projectController.creaProgetto(nome, descrizione);
+                mostraMessaggio("✅ Creato", "Nuovo progetto salvato!", Alert.AlertType.INFORMATION);
+            } else if (selected.isEliminabile()) {
+                // ✏️ AGGIORNA esistente
+                selected.setNome(nome);
+                selected.setDescrizione(descrizione);
+                projectController.aggiornaProgetto(selected);
+                mostraMessaggio("✅ Aggiornato", "Progetto modificato!", Alert.AlertType.INFORMATION);
+            } else {
+                mostraMessaggio("⚠️ Read-only",
+                        "Progetto non modificabile:\n• Ha attività assegnate",
+                        Alert.AlertType.WARNING);
+                return;
+            }
+
             pulisciForm();
             caricaProgetti();
+
         } catch (Exception e) {
-            mostraMessaggio("Errore", e.getMessage(), Alert.AlertType.ERROR);
+            mostraMessaggio("❌ Errore", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -74,17 +137,31 @@ public class AddProjectsController {
     private void eliminaProgetto() {
         Project selected = projectsTable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            mostraMessaggio("Attenzione", "Seleziona un progetto da eliminare", Alert.AlertType.WARNING);
+            mostraMessaggio("⚠️ Attenzione", "Seleziona un progetto", Alert.AlertType.WARNING);
             return;
         }
 
-        try {
-            projectController.eliminaProgetto(selected.getId());
-            mostraMessaggio("Successo", "Progetto eliminato con successo", Alert.AlertType.INFORMATION);
-            pulisciForm();
-            caricaProgetti();
-        } catch (Exception e) {
-            mostraMessaggio("Errore", e.getMessage(), Alert.AlertType.ERROR);
+        if (!selected.isEliminabile()) {
+            mostraMessaggio("❌ Non eliminabile",
+                    "Impossibile eliminare:\n• Progetto ha attività assegnate",
+                    Alert.AlertType.WARNING);
+            return;
+        }
+
+        Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
+        conferma.setTitle("🗑️ Conferma");
+        conferma.setHeaderText("Eliminare definitivamente?");
+        conferma.setContentText(selected.getNome());
+
+        if (conferma.showAndWait().get() == ButtonType.OK) {
+            try {
+                projectController.eliminaProgetto(selected.getId());
+                mostraMessaggio("✅ Eliminato", "Progetto rimosso!", Alert.AlertType.INFORMATION);
+                pulisciForm();
+                caricaProgetti();
+            } catch (Exception e) {
+                mostraMessaggio("❌ Errore", e.getMessage(), Alert.AlertType.ERROR);
+            }
         }
     }
 
@@ -92,25 +169,26 @@ public class AddProjectsController {
     private void pulisciForm() {
         addName.clear();
         addDesc.clear();
-        addName.setEditable(true);
-        addDesc.setEditable(true);
+        aggiornaStatoModifica(true);
         projectsTable.getSelectionModel().clearSelection();
     }
 
     private void caricaProgetti() {
         projects.clear();
-        if (add_solocanc.isSelected()) {
-            projects.addAll(projectController.getProgettiEliminabili());
-        } else {
-            projects.addAll(projectController.getTuttiProgetti());
+        try {
+            if (add_solocanc.isSelected()) {
+                projects.addAll(projectController.getProgettiEliminabili());
+            } else {
+                projects.addAll(projectController.getTuttiProgetti());
+            }
+        } catch (Exception e) {
+            mostraMessaggio("Errore", "Impossibile caricare progetti", Alert.AlertType.ERROR);
         }
     }
 
     private void caricaProgettoInForm(Project project) {
         addName.setText(project.getNome());
         addDesc.setText(project.getDescrizione());
-        addName.setEditable(false);
-        addDesc.setEditable(false);
     }
 
     private void mostraMessaggio(String titolo, String messaggio, Alert.AlertType tipo) {

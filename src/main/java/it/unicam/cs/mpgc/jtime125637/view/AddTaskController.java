@@ -62,29 +62,77 @@ public class AddTaskController {
 
     private void impostaListeners() {
         new_tasktable.getSelectionModel().selectedItemProperty().addListener(
-            (obs, oldSelection, newSelection) -> {
-                if (newSelection != null) {
-                    caricaAttivitaInForm(newSelection);
+                (obs, oldSelection, newSelection) -> {
+                    if (newSelection != null) {
+                        caricaAttivitaInForm(newSelection);
+                        aggiornaStatoModifica(newSelection.isEliminabile());
+                    } else {
+                        // Modalità "nuova attività"
+                        aggiornaStatoModifica(true);
+                    }
                 }
-            }
         );
 
         new_solocanc.selectedProperty().addListener((obs, oldVal, newVal) -> caricaAttivita());
     }
 
+    /** ✅ LOGICA CHIAVE: Controlla se è modificabile in base a isEliminabile() */
+    private void aggiornaStatoModifica(boolean modificabile) {
+        new_nome.setEditable(modificabile);
+        new_desc.setEditable(modificabile);
+        new_hh.setDisable(!modificabile);
+        new_mm.setDisable(!modificabile);
+        new_salva.setDisable(!modificabile);
+        new_del.setDisable(!modificabile);
+
+        // Stile visivo per indicare read-only
+        if (!modificabile) {
+            new_nome.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: gray;");
+            new_desc.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: gray;");
+        } else {
+            new_nome.setStyle("");
+            new_desc.setStyle("");
+        }
+    }
+
     @FXML
     private void salvaNuovaAttivita() {
+        Activity selected = new_tasktable.getSelectionModel().getSelectedItem();
+
         try {
-            String nome = new_nome.getText();
-            String descrizione = new_desc.getText();
+            String nome = new_nome.getText().trim();
+            String descrizione = new_desc.getText().trim();
             String stima = new_hh.getValue() + ":" + new_mm.getValue();
 
-            activityController.creaAttivita(nome, descrizione, stima);
-            mostraMessaggio("Successo", "Attività creata con successo", Alert.AlertType.INFORMATION);
+            if (nome.isEmpty()) {
+                mostraMessaggio("❌ Errore", "Il nome è obbligatorio", Alert.AlertType.ERROR);
+                return;
+            }
+
+            if (selected == null) {
+                // 🆕 NUOVA attività
+                activityController.creaAttivita(nome, descrizione, stima);
+                mostraMessaggio("✅ Creata", "Nuova attività salvata!", Alert.AlertType.INFORMATION);
+            } else if (selected.isEliminabile()) {
+                selected.setNome(nome);
+                selected.setDescrizione(descrizione);
+                selected.setStimaTempo(stima);
+
+                activityController.aggiornaAttivita(selected);
+                mostraMessaggio("✅ Aggiornata", "Attività modificata!",Alert.AlertType.INFORMATION);
+            } else {
+                mostraMessaggio("⚠️ Read-only",
+                        "Attività non modificabile:\n" +
+                                "• Assegnata a progetto\n• Pianificata\n• Completata",
+                        Alert.AlertType.WARNING);
+                return;
+            }
+
             pulisciForm();
             caricaAttivita();
+
         } catch (Exception e) {
-            mostraMessaggio("Errore", e.getMessage(), Alert.AlertType.ERROR);
+            mostraMessaggio("❌ Errore", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -92,17 +140,34 @@ public class AddTaskController {
     private void eliminaAttivita() {
         Activity selected = new_tasktable.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            mostraMessaggio("Attenzione", "Seleziona un'attività da eliminare", Alert.AlertType.WARNING);
+            mostraMessaggio("⚠️ Attenzione", "Seleziona un'attività", Alert.AlertType.WARNING);
             return;
         }
 
-        try {
-            activityController.eliminaAttivita(selected.getId());
-            mostraMessaggio("Successo", "Attività eliminata con successo", Alert.AlertType.INFORMATION);
-            pulisciForm();
-            caricaAttivita();
-        } catch (Exception e) {
-            mostraMessaggio("Errore", e.getMessage(), Alert.AlertType.ERROR);
+        if (!selected.isEliminabile()) {
+            mostraMessaggio("❌ Non eliminabile",
+                    "Impossibile eliminare:\n" +
+                            "• Assegnata a progetto\n" +
+                            "• Pianificata\n" +
+                            "• Completata", Alert.AlertType.WARNING);
+            return;
+        }
+
+        // 🔒 Conferma eliminazione
+        Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
+        conferma.setTitle("🗑️ Conferma eliminazione");
+        conferma.setHeaderText("Eliminare definitivamente?");
+        conferma.setContentText(selected.getNome());
+
+        if (conferma.showAndWait().get() == ButtonType.OK) {
+            try {
+                activityController.eliminaAttivita(selected.getId());
+                mostraMessaggio("✅ Eliminata", "Attività rimossa!", Alert.AlertType.INFORMATION);
+                pulisciForm();
+                caricaAttivita();
+            } catch (Exception e) {
+                mostraMessaggio("❌ Errore", e.getMessage(), Alert.AlertType.ERROR);
+            }
         }
     }
 
@@ -112,34 +177,36 @@ public class AddTaskController {
         new_desc.clear();
         new_hh.setValue("00");
         new_mm.setValue("00");
-        new_nome.setEditable(true);
-        new_desc.setEditable(true);
-        new_hh.setDisable(false);
-        new_mm.setDisable(false);
+        // Torna in modalità modifica completa (nuova attività)
+        aggiornaStatoModifica(true);
         new_tasktable.getSelectionModel().clearSelection();
     }
 
     private void caricaAttivita() {
         activities.clear();
-        if (new_solocanc.isSelected()) {
-            activities.addAll(activityController.getAttivitaEliminabili());
-        } else {
-            activities.addAll(activityController.getTutteAttivita());
+        try {
+            if (new_solocanc.isSelected()) {
+                activities.addAll(activityController.getAttivitaEliminabili());
+            } else {
+                activities.addAll(activityController.getTutteAttivita());
+            }
+        } catch (Exception e) {
+            mostraMessaggio("Errore", "Impossibile caricare attività", Alert.AlertType.ERROR);
         }
     }
 
     private void caricaAttivitaInForm(Activity activity) {
         new_nome.setText(activity.getNome());
         new_desc.setText(activity.getDescrizione());
-        if (activity.getStimaTempo() != null) {
+
+        if (activity.getStimaTempo() != null && !activity.getStimaTempo().isEmpty()) {
             String[] parts = activity.getStimaTempo().split(":");
-            new_hh.setValue(parts[0]);
-            new_mm.setValue(parts[1]);
+            if (parts.length == 2) {
+                new_hh.setValue(parts[0]);
+                new_mm.setValue(parts[1]);
+            }
         }
-        new_nome.setEditable(false);
-        new_desc.setEditable(false);
-        new_hh.setDisable(true);
-        new_mm.setDisable(true);
+        // Lo stato editable è gestito da aggiornaStatoModifica()
     }
 
     private void mostraMessaggio(String titolo, String messaggio, Alert.AlertType tipo) {

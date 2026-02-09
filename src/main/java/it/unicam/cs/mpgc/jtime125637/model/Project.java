@@ -34,7 +34,9 @@ public class Project {
 
     public Set<Activity> getActivities() { return activities; }
     public void setActivities(Set<Activity> activities) { this.activities = activities; }
-
+    public boolean isEliminabile() {
+        return isEmpty(); // Solo se non ha attività assegnate
+    }
     // Metodi helper
     public boolean isAttivo() {
         return "attivo".equalsIgnoreCase(stato);

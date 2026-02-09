@@ -12,7 +12,6 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.Date;
 
 @NoArgsConstructor
@@ -57,7 +56,6 @@ public class ManageTaskController {
     }
 
     private void inizializzaChoiceBox() {
-        // Ore (00-24)
         ObservableList<String> ore = FXCollections.observableArrayList();
         for (int i = 0; i <= 24; i++) {
             ore.add(String.format("%02d", i));
@@ -65,7 +63,6 @@ public class ManageTaskController {
         manage_hh.setItems(ore);
         manage_hh.setValue("00");
 
-        // Minuti (incrementi di 5)
         ObservableList<String> minuti = FXCollections.observableArrayList();
         for (int i = 0; i < 60; i += 5) {
             minuti.add(String.format("%02d", i));
@@ -78,15 +75,10 @@ public class ManageTaskController {
         try {
             progettiList.clear();
             progettiList.addAll(projectController.getProgettiAttivi());
-
-            // Popola entrambi i ChoiceBox
             manage_task.setItems(progettiList);
             manage_assegna.setItems(progettiList);
-
-            // Converter per mostrare nome progetto
             setupProjectConverter(manage_task);
             setupProjectConverter(manage_assegna);
-
         } catch (Exception e) {
             System.err.println("Errore caricamento progetti: " + e.getMessage());
         }
@@ -105,20 +97,41 @@ public class ManageTaskController {
         });
     }
 
-    /** CARICAMENTO AUTOMATICO DATI DAL DB */
     private void impostaListenerSelezioneTabella() {
         manage_table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 caricaDatiAttivita(newSelection);
+                // 🎯 ABILITA MODIFICA SOLO SE NON COMPLETATA
+                aggiornaStatoModifica(!newSelection.isCompletata());
             } else {
-                pulisciForm();
+                aggiornaStatoModifica(true);
             }
         });
     }
 
+    /** 🎯 LOGICA CHIAVE: Modificabile solo se !isCompletata() */
+    private void aggiornaStatoModifica(boolean modificabile) {
+        manage_add_data.setDisable(!modificabile);
+        manage_assegna.setDisable(!modificabile);
+        manage_hh.setDisable(!modificabile);
+        manage_mm.setDisable(!modificabile);
+
+        // Stile visivo per campi disabilitati
+        if (!modificabile) {
+            manage_add_data.setStyle("-fx-opacity: 0.6;");
+            manage_assegna.setStyle("-fx-opacity: 0.6;");
+            manage_hh.setStyle("-fx-opacity: 0.6;");
+            manage_mm.setStyle("-fx-opacity: 0.6;");
+        } else {
+            manage_add_data.setStyle("");
+            manage_assegna.setStyle("");
+            manage_hh.setStyle("");
+            manage_mm.setStyle("");
+        }
+    }
+
     private void caricaDatiAttivita(Activity attivita) {
         try {
-            // Ricarica l'attività dal DB per dati aggiornati
             Activity attivitaAggiornata = activityController.getAttivitaById(attivita.getId());
 
             // Data pianificazione
@@ -131,7 +144,6 @@ public class ManageTaskController {
 
             // Progetto assegnato
             if (attivitaAggiornata.getProject() != null) {
-                // Cerca il progetto nella lista
                 for (Project proj : progettiList) {
                     if (proj.getId().equals(attivitaAggiornata.getProject().getId())) {
                         manage_assegna.setValue(proj);
@@ -142,10 +154,9 @@ public class ManageTaskController {
                 manage_assegna.setValue(null);
             }
 
-            // Durata effettiva (tempo di chiusura)
+            // Durata effettiva
             if (attivitaAggiornata.getDurataEffettiva() != null &&
                     !attivitaAggiornata.getDurataEffettiva().equals("00:00")) {
-
                 String[] parti = attivitaAggiornata.getDurataEffettiva().split(":");
                 if (parti.length == 2) {
                     manage_hh.setValue(parti[0]);
@@ -181,7 +192,6 @@ public class ManageTaskController {
                     manage_attive.isSelected()
             ));
 
-            // Pulisci selezione e form quando si ricercano nuove attività
             manage_table.getSelectionModel().clearSelection();
             pulisciForm();
 
@@ -194,27 +204,32 @@ public class ManageTaskController {
     private void salvaModifiche() {
         Activity selected = manage_table.getSelectionModel().getSelectedItem();
         if (selected == null) {
-            mostraMessaggio("Attenzione", "Seleziona un'attività dalla tabella", Alert.AlertType.WARNING);
+            mostraMessaggio("⚠️ Attenzione", "Seleziona un'attività", Alert.AlertType.WARNING);
+            return;
+        }
+
+        if (selected.isCompletata()) {
+            mostraMessaggio("❌ Impossibile",
+                    "Attività completata non modificabile!\n" +
+                            "Durata effettiva: " + selected.getDurataEffettiva(),
+                    Alert.AlertType.WARNING);
             return;
         }
 
         try {
             boolean haModifiche = false;
 
-            // Pianificazione data
             if (manage_add_data.getValue() != null) {
                 activityController.pianificaAttivita(selected.getId(), manage_add_data.getValue());
                 haModifiche = true;
             }
 
-            // Assegnazione progetto
             Project progettoSelezionato = manage_assegna.getValue();
             if (progettoSelezionato != null) {
                 activityController.associaProgetto(selected.getId(), progettoSelezionato.getId());
                 haModifiche = true;
             }
 
-            // Tempo di chiusura
             String durataEffettiva = manage_hh.getValue() + ":" + manage_mm.getValue();
             if (!durataEffettiva.equals("00:00")) {
                 activityController.completaAttivita(selected.getId(), durataEffettiva);
@@ -222,14 +237,14 @@ public class ManageTaskController {
             }
 
             if (haModifiche) {
-                mostraMessaggio("Successo", "Attività aggiornata con successo!", Alert.AlertType.INFORMATION);
-                cercaAttivita(); // Ricarica la tabella
+                mostraMessaggio("✅ Successo", "Attività aggiornata!", Alert.AlertType.INFORMATION);
+                cercaAttivita();
             } else {
-                mostraMessaggio("Info", "Nessuna modifica da salvare", Alert.AlertType.INFORMATION);
+                mostraMessaggio("ℹ️ Info", "Nessuna modifica", Alert.AlertType.INFORMATION);
             }
 
         } catch (Exception e) {
-            mostraMessaggio("Errore", "Impossibile salvare: " + e.getMessage(), Alert.AlertType.ERROR);
+            mostraMessaggio("❌ Errore", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -239,9 +254,9 @@ public class ManageTaskController {
         manage_assegna.setValue(null);
         manage_hh.setValue("00");
         manage_mm.setValue("00");
+        aggiornaStatoModifica(true);
     }
 
-    // Utility per convertire Date -> LocalDate
     private LocalDate convertToLocalDate(Date date) {
         return LocalDate.ofInstant(date.toInstant(), java.time.ZoneId.systemDefault());
     }

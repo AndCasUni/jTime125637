@@ -31,6 +31,8 @@ public class StatisticsController {
 
     @FXML
     public void initialize() {
+        stat_progetti.setLegendVisible(false);
+        stat_att.setLegendVisible(false);
         inizializzaChoiceBox();
         impostaDateDefault();
         generaStatistiche(); // Carica statistiche iniziali

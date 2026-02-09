@@ -16,7 +16,7 @@
                 <fx:include source="/fxml/jTime_addTask.fxml"/>
             </Tab>
 
-            <Tab text="📋 Gestione Progetti">
+            <Tab text="📋 Crea Progetti">
                 <fx:include source="/fxml/jTime_addProjects.fxml"/>
             </Tab>
 
