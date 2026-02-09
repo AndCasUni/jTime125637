@@ -1,31 +1,30 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.DatePicker?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.control.TextField?>
-<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
 
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" >
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/17.0.12" xmlns:fx="http://javafx.com/fxml/1" fx:controller="it.unicam.cs.mpgc.jtime125637.view.PlanningController">
    <children>
       <TableView fx:id="scheduleTable" layoutX="14.0" layoutY="105.0" prefHeight="285.0" prefWidth="580.0">
         <columns>
-          <TableColumn  prefWidth="75.0" text="Ora" />
-          <TableColumn  prefWidth="75.0" text="Task" />
-            <TableColumn  prefWidth="150.0" text="Descrizione" />
-            <TableColumn prefWidth="75.0" text="Stima" />
-            <TableColumn  prefWidth="75.0" text="Effettivo" />
-            <TableColumn  prefWidth="130.0" text="Progetto" />
+          <TableColumn fx:id="colTask" prefWidth="75.0" text="Task" />
+            <TableColumn fx:id="colDescrizione" prefWidth="150.0" text="Descrizione" />
+            <TableColumn fx:id="colStima" prefWidth="75.0" text="Stima" />
+            <TableColumn fx:id="colEffettivo" prefWidth="75.0" text="Effettivo" />
+            <TableColumn fx:id="colProgetto" prefWidth="130.0" text="Progetto" />
         </columns>
       </TableView>
-      <DatePicker fx:id="date" layoutX="14.0" layoutY="59.0" />
+      <DatePicker fx:id="date" layoutX="14.0" layoutY="59.0" onAction="#caricaAttivitaGiorno" />
       <Label layoutX="89.0" layoutY="26.0" text="Data" />
       <TextField fx:id="completed" editable="false" layoutX="351.0" layoutY="58.0" prefHeight="26.0" prefWidth="86.0" />
       <TextField fx:id="notCompleted" editable="false" layoutX="468.0" layoutY="59.0" prefHeight="26.0" prefWidth="100.0" />
-      <Label layoutX="363.0" layoutY="26.0" text="Completate" />
-      <Label layoutX="474.0" layoutY="26.0" text="Non completate" />
-      <Label layoutX="241.0" layoutY="26.0" text="Programmate" />
       <TextField fx:id="scheduled" editable="false" layoutX="242.0" layoutY="59.0" prefHeight="26.0" prefWidth="70.0" />
+      <RadioButton fx:id="planning_complete" layoutX="351.0" layoutY="26.0" mnemonicParsing="false" text="Completate">
+         <toggleGroup>
+            <ToggleGroup fx:id="completo" />
+         </toggleGroup>
+      </RadioButton>
+      <RadioButton fx:id="planning_noncomplete" layoutX="468.0" layoutY="26.0" mnemonicParsing="false" text="Non completate" toggleGroup="$completo" />
+      <RadioButton fx:id="planning_scheduled" layoutX="242.0" layoutY="26.0" mnemonicParsing="false" text="Programmate" toggleGroup="$completo" />
    </children>
 </AnchorPane>

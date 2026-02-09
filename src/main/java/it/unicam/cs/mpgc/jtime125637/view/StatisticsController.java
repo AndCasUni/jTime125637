@@ -40,8 +40,7 @@ public class StatisticsController {
         );
         projectFilter.setItems(progetti);
         
-        // Rimuovi setCellFactory (non esiste per ChoiceBox)
-        // Usa solo setConverter
+
         projectFilter.setConverter(new javafx.util.StringConverter<Project>() {
             @Override
             public String toString(Project project) {

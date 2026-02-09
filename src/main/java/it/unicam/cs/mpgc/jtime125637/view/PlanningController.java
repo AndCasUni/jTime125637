@@ -3,6 +3,7 @@ package it.unicam.cs.mpgc.jtime125637.view;
 import it.unicam.cs.mpgc.jtime125637.controller.ActivityController;
 import it.unicam.cs.mpgc.jtime125637.controller.ReportController;
 import it.unicam.cs.mpgc.jtime125637.model.Activity;
+import it.unicam.cs.mpgc.jtime125637.model.Project;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -11,139 +12,128 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @NoArgsConstructor
 public class PlanningController {
     private final ActivityController activityController = new ActivityController();
     private final ReportController reportController = new ReportController();
-    private final ObservableList<Activity> activities = FXCollections.observableArrayList();
+    private final ObservableList<Activity> tutteAttivita = FXCollections.observableArrayList();
+    private final ObservableList<Activity> attivitaFiltrate = FXCollections.observableArrayList();
 
-    @FXML private DatePicker datePicker;
-    @FXML private TableView<Activity> planningTable;
-    @FXML private TableColumn<Activity, Integer> colId;
-    @FXML private TableColumn<Activity, String> colNome;
+    // Elementi FXML aggiornati
+    @FXML private DatePicker date;
+    @FXML private TableView<Activity> scheduleTable;
+    @FXML private TableColumn<Activity, String> colTask;
     @FXML private TableColumn<Activity, String> colDescrizione;
     @FXML private TableColumn<Activity, String> colStima;
     @FXML private TableColumn<Activity, String> colEffettivo;
-    @FXML private RadioButton filterAttive;
-    @FXML private RadioButton filterCompletate;
-    @FXML private Label lblTotaleProgrammate;
-    @FXML private Label lblPercentuale;
-    @FXML private Label lblCompletate;
-    @FXML private Label lblAttive;
+    @FXML private TableColumn<Activity, String> colProgetto;
+    @FXML private RadioButton planning_complete;
+    @FXML private RadioButton planning_noncomplete;
+    @FXML private RadioButton planning_scheduled; // Nuovo radio button
+    @FXML private TextField scheduled;
+    @FXML private TextField completed;
+    @FXML private TextField notCompleted;
 
     @FXML
     public void initialize() {
         inizializzaTabella();
         impostaListeners();
-        datePicker.setValue(LocalDate.now());
+        date.setValue(LocalDate.now());
         caricaAttivitaGiorno();
     }
 
     private void inizializzaTabella() {
-        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
-        colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
+        // Mappatura corretta ai getter della classe Activity
+        colTask.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colDescrizione.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
         colStima.setCellValueFactory(new PropertyValueFactory<>("stimaTempo"));
         colEffettivo.setCellValueFactory(new PropertyValueFactory<>("durataEffettiva"));
-        
-        planningTable.setItems(activities);
-        
-        planningTable.setRowFactory(tv -> new TableRow<Activity>() {
-            @Override
-            protected void updateItem(Activity activity, boolean empty) {
-                super.updateItem(activity, empty);
-                if (empty || activity == null) {
-                    setStyle("");
-                    getStyleClass().removeAll("attiva", "completata");
-                } else {
-                    if (activity.isCompletata()) {
-                        getStyleClass().removeAll("attiva");
-                        getStyleClass().add("completata");
-                    } else {
-                        getStyleClass().removeAll("completata");
-                        getStyleClass().add("attiva");
-                    }
-                }
-            }
-        });
+        colProgetto.setCellValueFactory(new PropertyValueFactory<>("project"));
+
+        scheduleTable.setItems(attivitaFiltrate);
     }
 
     private void impostaListeners() {
-        ToggleGroup group = new ToggleGroup();
-        filterAttive.setToggleGroup(group);
-        filterCompletate.setToggleGroup(group);
+        // Listener per tutti i radio button
+        planning_complete.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) filtraAttivita();
+        });
 
-        datePicker.valueProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal != null) {
-                caricaAttivitaGiorno();
+        planning_noncomplete.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) filtraAttivita();
+        });
+
+        planning_scheduled.selectedProperty().addListener((obs, oldVal, newVal) -> {
+            if (newVal) {
+                // Reset filtri - mostra tutte
+                filtraAttivita();
             }
-        });
-
-        filterAttive.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) filtraAttivita();
-        });
-
-        filterCompletate.selectedProperty().addListener((obs, oldVal, newVal) -> {
-            if (newVal) filtraAttivita();
         });
     }
 
     @FXML
     private void caricaAttivitaGiorno() {
-        LocalDate data = datePicker.getValue();
-        if (data == null) {
+        LocalDate dataSelezionata = date.getValue();
+        if (dataSelezionata == null) {
             return;
         }
 
         try {
-            activities.clear();
-            activities.addAll(activityController.getAttivitaPerData(data));
-            aggiornaStatistiche(data);
+            tutteAttivita.clear();
+            // Usa il metodo findByDate della repository
+            tutteAttivita.addAll(activityController.getAttivitaPerData(dataSelezionata));
+            aggiornaStatistiche();
             filtraAttivita();
         } catch (Exception e) {
-            mostraMessaggio("Errore", e.getMessage(), Alert.AlertType.ERROR);
+            mostraMessaggioErrore("Errore caricamento attività", e.getMessage());
         }
     }
 
     private void filtraAttivita() {
-        LocalDate data = datePicker.getValue();
-        if (data == null) {
-            return;
-        }
+        attivitaFiltrate.clear();
 
-        activities.clear();
-        var tutteAttivita = activityController.getAttivitaPerData(data);
-
-        if (filterAttive.isSelected()) {
-            activities.addAll(tutteAttivita.stream()
-                .filter(Activity::isAttiva)
-                .toList());
-        } else if (filterCompletate.isSelected()) {
-            activities.addAll(tutteAttivita.stream()
-                .filter(Activity::isCompletata)
-                .toList());
+        if (planning_complete.isSelected()) {
+            // Solo completate
+            attivitaFiltrate.addAll(tutteAttivita.stream()
+                    .filter(Activity::isCompletata)
+                    .toList());
+        } else if (planning_noncomplete.isSelected()) {
+            // Solo non completate
+            attivitaFiltrate.addAll(tutteAttivita.stream()
+                    .filter(activity -> !activity.isCompletata())
+                    .toList());
         } else {
-            activities.addAll(tutteAttivita);
+            // planning_scheduled selezionato o nessun filtro -> mostra tutte
+            attivitaFiltrate.addAll(tutteAttivita);
         }
+
+        scheduleTable.refresh();
     }
 
-    private void aggiornaStatistiche(LocalDate data) {
+    private void aggiornaStatistiche() {
         try {
-            ReportController.StatisticheGiorno stats = reportController.getStatistichePerGiorno(data);
-            
-            lblTotaleProgrammate.setText("Totale programmate: " + stats.getTotaleProgrammate());
-            lblCompletate.setText("Completate: " + stats.getCompletate());
-            lblAttive.setText("Attive: " + stats.getAttive());
-            lblPercentuale.setText(String.format("Percentuale completate: %.1f%%", 
-                stats.getPercentualeCompletate()));
+            int totali = tutteAttivita.size();
+            long completateCount = tutteAttivita.stream()
+                    .filter(Activity::isCompletata)
+                    .count();
+            int nonCompletateCount = totali - (int)completateCount;
+
+            scheduled.setText(String.valueOf(totali));
+            completed.setText(String.valueOf(completateCount));
+            notCompleted.setText(String.valueOf(nonCompletateCount));
+
         } catch (Exception e) {
-            System.err.println("Errore nel calcolo statistiche: " + e.getMessage());
+            System.err.println("Errore statistiche: " + e.getMessage());
+            scheduled.setText("0");
+            completed.setText("0");
+            notCompleted.setText("0");
         }
     }
 
-    private void mostraMessaggio(String titolo, String messaggio, Alert.AlertType tipo) {
-        Alert alert = new Alert(tipo);
+    private void mostraMessaggioErrore(String titolo, String messaggio) {
+        Alert alert = new Alert(Alert.AlertType.ERROR);
         alert.setTitle(titolo);
         alert.setHeaderText(null);
         alert.setContentText(messaggio);
