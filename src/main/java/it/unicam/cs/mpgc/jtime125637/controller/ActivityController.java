@@ -10,6 +10,11 @@ import java.time.LocalDate;
 import java.sql.Date;
 import java.util.List;
 
+/**
+ * Controller per la gestione delle attività.
+ * Gestisce le operazioni CRUD e la logica di business per le attività,
+ * inclusa la validazione dei vincoli temporali e delle associazioni con i progetti.
+ */
 @NoArgsConstructor
 public class ActivityController {
     private final ActivityRepository activityRepository = new ActivityRepository();
@@ -93,10 +98,12 @@ public class ActivityController {
     /**
      * Pianifica un'attività assegnando una data di esecuzione.
      * Una volta pianificata, l'attività non può più essere eliminata.
+     * Verifica che il totale delle ore stimate per la data non superi le 24 ore.
      *
      * @param id l'ID dell'attività da pianificare
      * @param data la data di pianificazione
      * @throws IllegalArgumentException se l'ID o la data non sono validi, o se l'attività non esiste
+     * @throws IllegalStateException se pianificare l'attività supererebbe le 24 ore per la data
      */
     public void pianificaAttivita(Integer id, LocalDate data) {
         if (id == null) {
@@ -109,6 +116,19 @@ public class ActivityController {
         if (activity == null) {
             throw new IllegalArgumentException("Attività non trovata");
         }
+
+        // Verifica vincolo 24 ore
+        if (!puoPianificareAttivita(data, activity.getStimaTempo(), id)) {
+            int totaleMinuti = calcolaTotaleOreStimatePerData(data);
+            int ore = totaleMinuti / 60;
+            int minuti = totaleMinuti % 60;
+            throw new IllegalStateException(
+                    String.format("Impossibile pianificare: la data %s ha già %02d:%02d ore stimate. " +
+                                    "Aggiungere questa attività supererebbe il limite di 24 ore.",
+                            data, ore, minuti)
+            );
+        }
+
         Date dataSql = Date.valueOf(data);
         activity.setDataPianificazione(dataSql);
         activityRepository.update(activity);
@@ -258,6 +278,81 @@ public class ActivityController {
     }
 
     /**
+     * Calcola il totale delle ore stimate per una data specifica.
+     * Somma tutte le stime delle attività pianificate per quella data.
+     *
+     * @param data la data da verificare
+     * @return totale minuti stimati per quella data
+     */
+    public int calcolaTotaleOreStimatePerData(LocalDate data) {
+        List<Activity> attivita = getAttivitaPerData(data);
+
+        int totaleMinuti = 0;
+        for (Activity a : attivita) {
+            if (a.getStimaTempo() != null && !a.getStimaTempo().isEmpty()) {
+                String[] parti = a.getStimaTempo().split(":");
+                if (parti.length == 2) {
+                    try {
+                        int ore = Integer.parseInt(parti[0]);
+                        int minuti = Integer.parseInt(parti[1]);
+                        totaleMinuti += (ore * 60) + minuti;
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            }
+        }
+
+        return totaleMinuti;
+    }
+
+    /**
+     * Verifica se è possibile pianificare un'attività in una data
+     * senza superare il limite di 24 ore totali.
+     *
+     * @param data la data target
+     * @param stimaNuovaAttivita stima in formato "HH:mm" dell'attività da pianificare
+     * @param activityIdDaEscludere ID attività da escludere dal calcolo (per modifiche)
+     * @return true se pianificabile senza superare 24 ore, false altrimenti
+     */
+    public boolean puoPianificareAttivita(LocalDate data, String stimaNuovaAttivita, Integer activityIdDaEscludere) {
+        List<Activity> attivita = getAttivitaPerData(data);
+
+        int totaleMinuti = 0;
+        for (Activity a : attivita) {
+            if (activityIdDaEscludere != null && a.getId().equals(activityIdDaEscludere)) {
+                continue;
+            }
+
+            if (a.getStimaTempo() != null && !a.getStimaTempo().isEmpty()) {
+                String[] parti = a.getStimaTempo().split(":");
+                if (parti.length == 2) {
+                    try {
+                        int ore = Integer.parseInt(parti[0]);
+                        int minuti = Integer.parseInt(parti[1]);
+                        totaleMinuti += (ore * 60) + minuti;
+                    } catch (NumberFormatException e) {
+                    }
+                }
+            }
+        }
+
+        if (stimaNuovaAttivita != null && !stimaNuovaAttivita.isEmpty()) {
+            String[] parti = stimaNuovaAttivita.split(":");
+            if (parti.length == 2) {
+                try {
+                    int ore = Integer.parseInt(parti[0]);
+                    int minuti = Integer.parseInt(parti[1]);
+                    totaleMinuti += (ore * 60) + minuti;
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+            }
+        }
+
+        return totaleMinuti <= 1440;
+    }
+
+    /**
      * Valida il formato di una stringa tempo.
      *
      * @param tempo la stringa da validare
@@ -281,9 +376,13 @@ public class ActivityController {
             return false;
         }
         String[] parts = tempo.split(":");
-        int ore = Integer.parseInt(parts[0]);
-        int minuti = Integer.parseInt(parts[1]);
-        int totaleMinuti = (ore * 60) + minuti;
-        return totaleMinuti >= 5 && totaleMinuti <= 1440;
+        try {
+            int ore = Integer.parseInt(parts[0]);
+            int minuti = Integer.parseInt(parts[1]);
+            int totaleMinuti = (ore * 60) + minuti;
+            return totaleMinuti >= 5 && totaleMinuti <= 1440;
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            return false;
+        }
     }
 }

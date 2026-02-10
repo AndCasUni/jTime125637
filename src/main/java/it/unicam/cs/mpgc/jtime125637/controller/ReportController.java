@@ -85,7 +85,7 @@ public class ReportController {
      * @param inizio data di inizio dell'intervallo
      * @param fine data di fine dell'intervallo
      * @param projectId ID del progetto per filtrare (null per tutti i progetti)
-     * @return oggetto contenente statistiche su attività, ore stimate, ore effettive e ore mancanti (in minuti)
+     * @return oggetto contenente statistiche su attività, ore stimate, ore effettive e ore rimanenti (in minuti)
      * @throws IllegalArgumentException se le date non sono valide o se la data fine precede la data inizio
      */
     public StatisticheIntervallo getStatisticheIntervallo(LocalDate inizio, LocalDate fine, Integer projectId) {
@@ -106,14 +106,15 @@ public class ReportController {
 
         int totaleOreStimate = calcolaTotaleOre(attivita, Activity::getStimaTempo);
         int totaleOreEffettive = calcolaTotaleOre(attivita, Activity::getDurataEffettiva);
-        int oreMancanti = Math.max(0, totaleOreStimate - totaleOreEffettive);
+
+        int totaleOreStimateDaNonCompletate = calcolaTotaleOreDaNonCompletate(attivita);
 
         return new StatisticheIntervallo(
                 attivita.size(),
                 (int) attivita.stream().filter(Activity::isCompletata).count(),
                 totaleOreStimate,
                 totaleOreEffettive,
-                oreMancanti
+                totaleOreStimateDaNonCompletate
         );
     }
 
@@ -133,6 +134,28 @@ public class ReportController {
     }
 
     /**
+     * Calcola il totale delle ore stimate (in minuti) solo per le attività NON completate.
+     * Le attività completate non contribuiscono al totale delle ore rimanenti.
+     *
+     * Esempio: 3 attività da 30min ciascuna
+     * - Attività 1: completata in 10min → NON conta (0min)
+     * - Attività 2: non completata (stima 30min) → conta (30min)
+     * - Attività 3: non completata (stima 30min) → conta (30min)
+     * Totale ore rimanenti: 60min
+     *
+     * @param attivita lista delle attività da processare
+     * @return totale dei minuti stimati per attività non completate
+     */
+    private int calcolaTotaleOreDaNonCompletate(List<Activity> attivita) {
+        return attivita.stream()
+                .filter(a -> !a.isCompletata())
+                .map(Activity::getStimaTempo)
+                .filter(tempo -> tempo != null && !tempo.isEmpty() && !tempo.equals("00:00"))
+                .mapToInt(this::convertiTempoInMinuti)
+                .sum();
+    }
+
+    /**
      * Converte una stringa tempo in formato "HH:MM" in minuti totali.
      *
      * @param tempo stringa tempo in formato "HH:MM"
@@ -142,8 +165,12 @@ public class ReportController {
         if (tempo == null || tempo.isEmpty() || tempo.equals("00:00")) {
             return 0;
         }
-        String[] parts = tempo.split(":");
-        return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+        try {
+            String[] parts = tempo.split(":");
+            return Integer.parseInt(parts[0]) * 60 + Integer.parseInt(parts[1]);
+        } catch (NumberFormatException | ArrayIndexOutOfBoundsException e) {
+            return 0;
+        }
     }
 
     /**
@@ -267,18 +294,18 @@ public class ReportController {
         private int completate;
         private int totaleOreStimate;
         private int totaleOreEffettive;
-        private int oreMancanti;
+        private int totaleOreStimateDaNonCompletate;
 
         public StatisticheIntervallo() {}
 
         public StatisticheIntervallo(int totaleAttivita, int completate,
                                      int totaleOreStimate, int totaleOreEffettive,
-                                     int oreMancanti) {
+                                     int totaleOreStimateDaNonCompletate) {
             this.totaleAttivita = totaleAttivita;
             this.completate = completate;
             this.totaleOreStimate = totaleOreStimate;
             this.totaleOreEffettive = totaleOreEffettive;
-            this.oreMancanti = oreMancanti;
+            this.totaleOreStimateDaNonCompletate = totaleOreStimateDaNonCompletate;
         }
 
         public int getTotaleAttivita() { return totaleAttivita; }
@@ -293,7 +320,27 @@ public class ReportController {
         public int getTotaleOreEffettive() { return totaleOreEffettive; }
         public void setTotaleOreEffettive(int totaleOreEffettive) { this.totaleOreEffettive = totaleOreEffettive; }
 
-        public int getOreMancanti() { return oreMancanti; }
-        public void setOreMancanti(int oreMancanti) { this.oreMancanti = oreMancanti; }
+        /**
+         * Restituisce il totale delle ore stimate per le attività NON completate.
+         * Questo rappresenta le ore ancora da fare.
+         *
+         * @return minuti stimati per attività non completate
+         */
+        public int getTotaleOreStimateDaNonCompletate() {
+            return totaleOreStimateDaNonCompletate;
+        }
+
+        public void setTotaleOreStimateDaNonCompletate(int totaleOreStimateDaNonCompletate) {
+            this.totaleOreStimateDaNonCompletate = totaleOreStimateDaNonCompletate;
+        }
+
+        /**
+         * @deprecated Usare getTotaleOreStimateDaNonCompletate() invece.
+         * Questo metodo restituisce la vecchia logica (stima - effettiva).
+         */
+        @Deprecated
+        public int getOreMancanti() {
+            return Math.max(0, totaleOreStimate - totaleOreEffettive);
+        }
     }
 }

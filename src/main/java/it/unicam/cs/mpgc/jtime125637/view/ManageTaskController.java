@@ -14,6 +14,12 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.util.Date;
 
+/**
+ * Controller per la gestione delle attività esistenti.
+ * Permette di cercare attività con filtri multipli, pianificarle, assegnarle a progetti
+ * e completarle. Le attività completate diventano read-only e non possono essere modificate.
+ * Include validazione per impedire di pianificare più di 24 ore in una singola giornata.
+ */
 @NoArgsConstructor
 public class ManageTaskController {
     private final ActivityController activityController = new ActivityController();
@@ -38,17 +44,23 @@ public class ManageTaskController {
     @FXML private ChoiceBox<String> manage_hh;
     @FXML private ChoiceBox<String> manage_mm;
 
-
+    /**
+     * Inizializza il controller configurando la tabella, i ChoiceBox,
+     * caricando i progetti e impostando i listener.
+     */
     @FXML
     public void initialize() {
         inizializzaTabella();
         inizializzaChoiceBox();
         caricaProgetti();
         impostaListenerSelezioneTabella();
+        impostaListenerDatePicker();
         cercaAttivita();
     }
 
-
+    /**
+     * Configura le colonne della tabella delle attività con i rispettivi data binding.
+     */
     private void inizializzaTabella() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
@@ -57,6 +69,9 @@ public class ManageTaskController {
         manage_table.setItems(activities);
     }
 
+    /**
+     * Inizializza i ChoiceBox per la selezione di ore (0-24) e minuti (0-55, incrementi di 5).
+     */
     private void inizializzaChoiceBox() {
         ObservableList<String> ore = FXCollections.observableArrayList();
         for (int i = 0; i <= 24; i++) {
@@ -120,6 +135,46 @@ public class ManageTaskController {
                 aggiornaStatoModifica(!newSelection.isCompletata());
             } else {
                 aggiornaStatoModifica(true);
+            }
+        });
+    }
+
+    /**
+     * Configura il listener per il DatePicker per mostrare un avviso preventivo
+     * quando si seleziona una data che ha già molte ore pianificate.
+     */
+    private void impostaListenerDatePicker() {
+        manage_add_data.valueProperty().addListener((obs, oldDate, newDate) -> {
+            if (newDate != null) {
+                Activity selected = manage_table.getSelectionModel().getSelectedItem();
+                if (selected != null) {
+                    try {
+                        int totaleMinuti = activityController.calcolaTotaleOreStimatePerData(newDate);
+                        int ore = totaleMinuti / 60;
+                        int minuti = totaleMinuti % 60;
+
+                        // Avviso visivo se si avvicina al limite (oltre 20 ore)
+                        if (totaleMinuti > 1200) {
+                            manage_add_data.setStyle("-fx-border-color: #f59e0b; -fx-border-width: 2;");
+                            mostraTooltip(manage_add_data,
+                                    String.format("⚠️ ATTENZIONE: Il %s ha già %02d:%02d ore pianificate",
+                                            newDate, ore, minuti));
+                        } else if (totaleMinuti > 0) {
+                            manage_add_data.setStyle("-fx-border-color: #10b981; -fx-border-width: 2;");
+                            mostraTooltip(manage_add_data,
+                                    String.format("✓ Il %s ha %02d:%02d ore pianificate",
+                                            newDate, ore, minuti));
+                        } else {
+                            manage_add_data.setStyle("");
+                            rimuoviTooltip(manage_add_data);
+                        }
+                    } catch (Exception e) {
+                        manage_add_data.setStyle("");
+                    }
+                }
+            } else {
+                manage_add_data.setStyle("");
+                rimuoviTooltip(manage_add_data);
             }
         });
     }
@@ -230,6 +285,7 @@ public class ManageTaskController {
      * Salva le modifiche all'attività selezionata.
      * Può pianificare, assegnare a progetto e/o completare l'attività.
      * Le attività già completate non possono essere modificate.
+     * Include validazione per impedire di superare le 24 ore giornaliere.
      */
     @FXML
     private void salvaModifiche() {
@@ -250,17 +306,20 @@ public class ManageTaskController {
         try {
             boolean haModifiche = false;
 
+            // Pianificazione con validazione 24 ore
             if (manage_add_data.getValue() != null) {
                 activityController.pianificaAttivita(selected.getId(), manage_add_data.getValue());
                 haModifiche = true;
             }
 
+            // Assegnazione progetto
             Project progettoSelezionato = manage_assegna.getValue();
             if (progettoSelezionato != null) {
                 activityController.associaProgetto(selected.getId(), progettoSelezionato.getId());
                 haModifiche = true;
             }
 
+            // Completamento attività
             String durataEffettiva = manage_hh.getValue() + ":" + manage_mm.getValue();
             if (!durataEffettiva.equals("00:00")) {
                 activityController.completaAttivita(selected.getId(), durataEffettiva);
@@ -274,6 +333,9 @@ public class ManageTaskController {
                 mostraMessaggio("ℹ️ Info", "Nessuna modifica", Alert.AlertType.INFORMATION);
             }
 
+        } catch (IllegalStateException e) {
+            // Gestisce specificamente l'errore del limite 24 ore
+            mostraMessaggio("❌ Limite 24 ore superato", e.getMessage(), Alert.AlertType.ERROR);
         } catch (Exception e) {
             mostraMessaggio("❌ Errore", e.getMessage(), Alert.AlertType.ERROR);
         }
@@ -289,6 +351,7 @@ public class ManageTaskController {
         manage_hh.setValue("00");
         manage_mm.setValue("00");
         aggiornaStatoModifica(true);
+        rimuoviTooltip(manage_add_data);
     }
 
     /**
@@ -299,6 +362,27 @@ public class ManageTaskController {
      */
     private LocalDate convertToLocalDate(Date date) {
         return LocalDate.ofInstant(date.toInstant(), java.time.ZoneId.systemDefault());
+    }
+
+    /**
+     * Mostra un tooltip su un controllo.
+     *
+     * @param control il controllo su cui mostrare il tooltip
+     * @param messaggio il messaggio da visualizzare
+     */
+    private void mostraTooltip(Control control, String messaggio) {
+        Tooltip tooltip = new Tooltip(messaggio);
+        tooltip.setStyle("-fx-font-size: 12px;");
+        Tooltip.install(control, tooltip);
+    }
+
+    /**
+     * Rimuove il tooltip da un controllo.
+     *
+     * @param control il controllo da cui rimuovere il tooltip
+     */
+    private void rimuoviTooltip(Control control) {
+        Tooltip.uninstall(control, null);
     }
 
     /**

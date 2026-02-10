@@ -170,6 +170,16 @@ public class StatisticsController {
      * Aggiorna i campi di testo con le statistiche delle ore (stimate, effettive, rimanenti)
      * per l'intervallo specificato.
      *
+     * Il calcolo delle ore rimanenti è fatto solo per le attività non completate:
+     * - Se un'attività è completata, non contribuisce alle ore rimanenti
+     * - Se un'attività non è completata, la sua stima intera contribuisce alle ore rimanenti
+     *
+     * Esempio: 3 attività da 30min ciascuna:
+     * - Attività 1: completata in 10min → ore rimanenti: 0min
+     * - Attività 2: non completata (stima 30min) → ore rimanenti: 30min
+     * - Attività 3: non completata (stima 30min) → ore rimanenti: 30min
+     * Totale ore rimanenti: 60min
+     *
      * @param inizio data di inizio del periodo
      * @param fine data di fine del periodo
      * @param projectId ID del progetto selezionato, null per tutti i progetti
@@ -180,7 +190,9 @@ public class StatisticsController {
 
             String oreStimate = formattaOre(stats.getTotaleOreStimate());
             String oreEffettive = formattaOre(stats.getTotaleOreEffettive());
-            String oreRimanenti = formattaOre(stats.getTotaleOreStimate() - stats.getTotaleOreEffettive());
+
+            int oreRimanentiMinuti = stats.getTotaleOreStimateDaNonCompletate();
+            String oreRimanenti = formattaOre(oreRimanentiMinuti);
 
             stat_tothh.setText(oreStimate);
             stat_tothheff.setText(oreEffettive);
@@ -188,9 +200,9 @@ public class StatisticsController {
 
         } catch (Exception e) {
             System.err.println("Errore statistiche ore: " + e.getMessage());
-            stat_tothh.setText("0h");
-            stat_tothheff.setText("0h");
-            stat_tothhrimaste.setText("0h");
+            stat_tothh.setText("0h 00m");
+            stat_tothheff.setText("0h 00m");
+            stat_tothhrimaste.setText("0h 00m");
         }
     }
 
