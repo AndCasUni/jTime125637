@@ -38,6 +38,7 @@ public class ManageTaskController {
     @FXML private ChoiceBox<String> manage_hh;
     @FXML private ChoiceBox<String> manage_mm;
 
+
     @FXML
     public void initialize() {
         inizializzaTabella();
@@ -46,6 +47,7 @@ public class ManageTaskController {
         impostaListenerSelezioneTabella();
         cercaAttivita();
     }
+
 
     private void inizializzaTabella() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -71,6 +73,10 @@ public class ManageTaskController {
         manage_mm.setValue("00");
     }
 
+    /**
+     * Carica i progetti attivi nei ChoiceBox per filtro e assegnazione.
+     * Configura anche il converter per visualizzare il nome del progetto.
+     */
     private void caricaProgetti() {
         try {
             progettiList.clear();
@@ -84,6 +90,11 @@ public class ManageTaskController {
         }
     }
 
+    /**
+     * Configura il converter per visualizzare il nome del progetto nel ChoiceBox.
+     *
+     * @param choiceBox il ChoiceBox da configurare
+     */
     private void setupProjectConverter(ChoiceBox<Project> choiceBox) {
         choiceBox.setConverter(new javafx.util.StringConverter<Project>() {
             @Override
@@ -97,11 +108,15 @@ public class ManageTaskController {
         });
     }
 
+    /**
+     * Configura il listener per la selezione della tabella.
+     * Quando un'attività viene selezionata, carica i suoi dati nel form.
+     * Le attività completate vengono rese read-only.
+     */
     private void impostaListenerSelezioneTabella() {
         manage_table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
                 caricaDatiAttivita(newSelection);
-                // 🎯 ABILITA MODIFICA SOLO SE NON COMPLETATA
                 aggiornaStatoModifica(!newSelection.isCompletata());
             } else {
                 aggiornaStatoModifica(true);
@@ -109,14 +124,18 @@ public class ManageTaskController {
         });
     }
 
-    /** 🎯 LOGICA CHIAVE: Modificabile solo se !isCompletata() */
+    /**
+     * Aggiorna lo stato di modifica del form in base allo stato di completamento dell'attività.
+     * Le attività completate non possono essere modificate e i campi vengono disabilitati.
+     *
+     * @param modificabile true se l'attività può essere modificata, false se è completata
+     */
     private void aggiornaStatoModifica(boolean modificabile) {
         manage_add_data.setDisable(!modificabile);
         manage_assegna.setDisable(!modificabile);
         manage_hh.setDisable(!modificabile);
         manage_mm.setDisable(!modificabile);
 
-        // Stile visivo per campi disabilitati
         if (!modificabile) {
             manage_add_data.setStyle("-fx-opacity: 0.6;");
             manage_assegna.setStyle("-fx-opacity: 0.6;");
@@ -130,11 +149,16 @@ public class ManageTaskController {
         }
     }
 
+    /**
+     * Carica i dati di un'attività nel form per visualizzazione o modifica.
+     * Include data di pianificazione, progetto assegnato e durata effettiva.
+     *
+     * @param attivita l'attività di cui caricare i dati
+     */
     private void caricaDatiAttivita(Activity attivita) {
         try {
             Activity attivitaAggiornata = activityController.getAttivitaById(attivita.getId());
 
-            // Data pianificazione
             if (attivitaAggiornata.getDataPianificazione() != null) {
                 LocalDate dataLocal = convertToLocalDate(attivitaAggiornata.getDataPianificazione());
                 manage_add_data.setValue(dataLocal);
@@ -142,7 +166,6 @@ public class ManageTaskController {
                 manage_add_data.setValue(null);
             }
 
-            // Progetto assegnato
             if (attivitaAggiornata.getProject() != null) {
                 for (Project proj : progettiList) {
                     if (proj.getId().equals(attivitaAggiornata.getProject().getId())) {
@@ -154,7 +177,6 @@ public class ManageTaskController {
                 manage_assegna.setValue(null);
             }
 
-            // Durata effettiva
             if (attivitaAggiornata.getDurataEffettiva() != null &&
                     !attivitaAggiornata.getDurataEffettiva().equals("00:00")) {
                 String[] parti = attivitaAggiornata.getDurataEffettiva().split(":");
@@ -173,6 +195,10 @@ public class ManageTaskController {
         }
     }
 
+    /**
+     * Cerca attività applicando filtri multipli: ID, nome, progetto e stati
+     * (attive, completate, pianificate, assegnate).
+     */
     @FXML
     private void cercaAttivita() {
         try {
@@ -200,6 +226,11 @@ public class ManageTaskController {
         }
     }
 
+    /**
+     * Salva le modifiche all'attività selezionata.
+     * Può pianificare, assegnare a progetto e/o completare l'attività.
+     * Le attività già completate non possono essere modificate.
+     */
     @FXML
     private void salvaModifiche() {
         Activity selected = manage_table.getSelectionModel().getSelectedItem();
@@ -248,6 +279,9 @@ public class ManageTaskController {
         }
     }
 
+    /**
+     * Pulisce tutti i campi del form e ripristina lo stato di modifica.
+     */
     @FXML
     private void pulisciForm() {
         manage_add_data.setValue(null);
@@ -257,10 +291,23 @@ public class ManageTaskController {
         aggiornaStatoModifica(true);
     }
 
+    /**
+     * Converte un oggetto Date in LocalDate.
+     *
+     * @param date la data da convertire
+     * @return la data convertita in LocalDate
+     */
     private LocalDate convertToLocalDate(Date date) {
         return LocalDate.ofInstant(date.toInstant(), java.time.ZoneId.systemDefault());
     }
 
+    /**
+     * Mostra un messaggio di dialogo all'utente.
+     *
+     * @param titolo titolo della finestra di dialogo
+     * @param messaggio contenuto del messaggio
+     * @param tipo tipo di alert (ERROR, WARNING, INFORMATION, etc.)
+     */
     private void mostraMessaggio(String titolo, String messaggio, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titolo);

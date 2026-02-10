@@ -9,6 +9,7 @@ import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
 import lombok.NoArgsConstructor;
 
+
 @NoArgsConstructor
 public class AddProjectsController {
     private final ProjectController projectController = new ProjectController();
@@ -33,15 +34,16 @@ public class AddProjectsController {
         impostaListeners();
     }
 
+    /**
+     * Configura le colonne della tabella e il rendering della colonna "eliminabile".
+     * La colonna eliminabile mostra un indicatore visivo (✅/❌) con colori appropriati.
+     */
     private void inizializzaTabella() {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNome.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colDescrizione.setCellValueFactory(new PropertyValueFactory<>("descrizione"));
-
-        // Usa isEliminabile() della classe Project
         colEliminabile.setCellValueFactory(new PropertyValueFactory<>("eliminabile"));
 
-        // Stile visivo ✅/❌
         colEliminabile.setCellFactory(col -> new TableCell<Project, Boolean>() {
             @Override
             protected void updateItem(Boolean item, boolean empty) {
@@ -61,6 +63,11 @@ public class AddProjectsController {
         projectsTable.setItems(projects);
     }
 
+    /**
+     * Configura i listener per la selezione della tabella e il checkbox di filtro.
+     * Quando un progetto viene selezionato, i suoi dati vengono caricati nel form
+     * e lo stato di modifica viene aggiornato in base alla sua eliminabilità.
+     */
     private void impostaListeners() {
         projectsTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> {
@@ -68,7 +75,7 @@ public class AddProjectsController {
                         caricaProgettoInForm(newSelection);
                         aggiornaStatoModifica(newSelection.isEliminabile());
                     } else {
-                        aggiornaStatoModifica(true); // Modalità "nuovo"
+                        aggiornaStatoModifica(true);
                     }
                 }
         );
@@ -79,7 +86,12 @@ public class AddProjectsController {
         });
     }
 
-    /** 🎯 Controlla isEliminabile() per abilitare modifica */
+    /**
+     * Aggiorna lo stato di modifica del form in base all'eliminabilità del progetto.
+     * Se il progetto non è eliminabile (ha attività assegnate), il form diventa read-only.
+     *
+     * @param modificabile true se il progetto può essere modificato, false altrimenti
+     */
     private void aggiornaStatoModifica(boolean modificabile) {
         addName.setEditable(modificabile);
         addDesc.setEditable(modificabile);
@@ -95,6 +107,12 @@ public class AddProjectsController {
         }
     }
 
+    /**
+     * Salva un nuovo progetto o aggiorna un progetto esistente.
+     * Se nessun progetto è selezionato, crea un nuovo progetto.
+     * Se un progetto eliminabile è selezionato, lo aggiorna.
+     * I progetti non eliminabili non possono essere modificati.
+     */
     @FXML
     private void salvaNuovoProgetto() {
         Project selected = projectsTable.getSelectionModel().getSelectedItem();
@@ -109,11 +127,9 @@ public class AddProjectsController {
             }
 
             if (selected == null) {
-                // 🆕 NUOVO progetto
                 projectController.creaProgetto(nome, descrizione);
                 mostraMessaggio("✅ Creato", "Nuovo progetto salvato!", Alert.AlertType.INFORMATION);
             } else if (selected.isEliminabile()) {
-                // ✏️ AGGIORNA esistente
                 selected.setNome(nome);
                 selected.setDescrizione(descrizione);
                 projectController.aggiornaProgetto(selected);
@@ -133,6 +149,10 @@ public class AddProjectsController {
         }
     }
 
+    /**
+     * Elimina il progetto selezionato dopo conferma dell'utente.
+     * Solo i progetti eliminabili (senza attività) possono essere eliminati.
+     */
     @FXML
     private void eliminaProgetto() {
         Project selected = projectsTable.getSelectionModel().getSelectedItem();
@@ -165,6 +185,10 @@ public class AddProjectsController {
         }
     }
 
+    /**
+     * Pulisce il form e deseleziona il progetto dalla tabella,
+     * riportando l'interfaccia in modalità "nuovo progetto".
+     */
     @FXML
     private void pulisciForm() {
         addName.clear();
@@ -173,6 +197,11 @@ public class AddProjectsController {
         projectsTable.getSelectionModel().clearSelection();
     }
 
+    /**
+     * Carica i progetti nella tabella.
+     * Se il checkbox "solo eliminabili" è selezionato, carica solo i progetti eliminabili,
+     * altrimenti carica tutti i progetti.
+     */
     private void caricaProgetti() {
         projects.clear();
         try {
@@ -186,11 +215,23 @@ public class AddProjectsController {
         }
     }
 
+    /**
+     * Carica i dati di un progetto nel form per la visualizzazione o modifica.
+     *
+     * @param project il progetto da caricare nel form
+     */
     private void caricaProgettoInForm(Project project) {
         addName.setText(project.getNome());
         addDesc.setText(project.getDescrizione());
     }
 
+    /**
+     * Mostra un messaggio di dialogo all'utente.
+     *
+     * @param titolo titolo della finestra di dialogo
+     * @param messaggio contenuto del messaggio
+     * @param tipo tipo di alert (ERROR, WARNING, INFORMATION, etc.)
+     */
     private void mostraMessaggio(String titolo, String messaggio, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titolo);

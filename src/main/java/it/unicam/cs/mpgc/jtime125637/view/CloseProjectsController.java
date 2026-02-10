@@ -42,17 +42,15 @@ public class CloseProjectsController {
     public void initialize() {
         inizializzaTabelle();
         impostaListeners();
-        caricaProgettiAttivi();  // Default: attivi
+        caricaProgettiAttivi();
     }
 
     private void inizializzaTabelle() {
-        // Progetti
         colIdProj.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNomeProj.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colStatoProj.setCellValueFactory(new PropertyValueFactory<>("stato"));
         projTable.setItems(projects);
 
-        // Task
         colIdTask.setCellValueFactory(new PropertyValueFactory<>("id"));
         colNomeTask.setCellValueFactory(new PropertyValueFactory<>("nome"));
         colStimaTask.setCellValueFactory(new PropertyValueFactory<>("stimaTempo"));
@@ -60,6 +58,10 @@ public class CloseProjectsController {
         taskTable.setItems(activities);
     }
 
+    /**
+     * Configura i listener per la selezione del progetto e i checkbox di filtro.
+     * Quando un progetto viene selezionato, carica le sue attività nella tabella inferiore.
+     */
     private void impostaListeners() {
         projTable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> {
@@ -75,6 +77,11 @@ public class CloseProjectsController {
         checkCompleto.selectedProperty().addListener((obs, oldVal, newVal) -> aggiornaProgetti());
     }
 
+    /**
+     * Cerca progetti applicando filtri per ID, nome e stato.
+     * I filtri di stato dipendono dalla selezione dei checkbox (attivo/completato).
+     * Se entrambi i checkbox sono selezionati o deselezionati, mostra tutti i progetti.
+     */
     @FXML
     private void cercaProgetti() {
         projects.clear();
@@ -104,10 +111,13 @@ public class CloseProjectsController {
                 .filter(p -> nome.isEmpty() || p.getNome().toLowerCase().contains(nome.toLowerCase()))
                 .forEach(projects::add);
 
-        // Reset selezione task
         activities.clear();
     }
 
+    /**
+     * Chiude il progetto selezionato cambiando il suo stato a "completato".
+     * Un progetto può essere chiuso solo se ha tutte le attività completate.
+     */
     @FXML
     private void chiudiProgetto() {
         Project selected = projTable.getSelectionModel().getSelectedItem();
@@ -118,13 +128,19 @@ public class CloseProjectsController {
         try {
             projectController.chiudiProgetto(selected.getId());
             mostraMessaggio("Successo", "Progetto chiuso con successo", Alert.AlertType.INFORMATION);
-            aggiornaProgetti();  // Ricarica in base ai filtri correnti
+            aggiornaProgetti();
             activities.clear();
         } catch (Exception e) {
             mostraMessaggio("Errore", e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
+    /**
+     * Aggiorna la lista dei progetti in base allo stato dei checkbox di filtro.
+     * Se solo "Attivo" è selezionato, mostra progetti attivi.
+     * Se solo "Completato" è selezionato, mostra progetti completati.
+     * Altrimenti, mostra tutti i progetti.
+     */
     private void aggiornaProgetti() {
         if (checkAttivo.isSelected() && !checkCompleto.isSelected()) {
             caricaProgettiAttivi();
@@ -136,21 +152,39 @@ public class CloseProjectsController {
         }
     }
 
+    /**
+     * Carica nella tabella tutti i progetti con stato "attivo".
+     */
     private void caricaProgettiAttivi() {
         projects.clear();
         projects.addAll(projectController.getProgettiAttivi());
     }
 
+    /**
+     * Carica nella tabella tutti i progetti con stato "completato".
+     */
     private void caricaProgettiCompletati() {
         projects.clear();
         projects.addAll(projectController.getProgettiCompletati());
     }
 
+    /**
+     * Carica nella tabella delle attività tutte le attività associate al progetto specificato.
+     *
+     * @param projectId l'ID del progetto di cui caricare le attività
+     */
     private void caricaAttivitaProgetto(Integer projectId) {
         activities.clear();
         activities.addAll(activityController.getAttivitaPerProgetto(projectId));
     }
 
+    /**
+     * Mostra un messaggio di dialogo all'utente.
+     *
+     * @param titolo titolo della finestra di dialogo
+     * @param messaggio contenuto del messaggio
+     * @param tipo tipo di alert (ERROR, WARNING, INFORMATION, etc.)
+     */
     private void mostraMessaggio(String titolo, String messaggio, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titolo);

@@ -60,6 +60,11 @@ public class AddTaskController {
         new_tasktable.setItems(activities);
     }
 
+    /**
+     * Configura i listener per la selezione della tabella e il checkbox di filtro.
+     * Quando un'attività viene selezionata, i suoi dati vengono caricati nel form
+     * e lo stato di modifica viene aggiornato in base alla sua eliminabilità.
+     */
     private void impostaListeners() {
         new_tasktable.getSelectionModel().selectedItemProperty().addListener(
                 (obs, oldSelection, newSelection) -> {
@@ -67,7 +72,6 @@ public class AddTaskController {
                         caricaAttivitaInForm(newSelection);
                         aggiornaStatoModifica(newSelection.isEliminabile());
                     } else {
-                        // Modalità "nuova attività"
                         aggiornaStatoModifica(true);
                     }
                 }
@@ -76,7 +80,12 @@ public class AddTaskController {
         new_solocanc.selectedProperty().addListener((obs, oldVal, newVal) -> caricaAttivita());
     }
 
-    /** ✅ LOGICA CHIAVE: Controlla se è modificabile in base a isEliminabile() */
+    /**
+     * Aggiorna lo stato di modifica del form in base all'eliminabilità dell'attività.
+     * Se l'attività non è eliminabile (assegnata, pianificata o completata), il form diventa read-only.
+     *
+     * @param modificabile true se l'attività può essere modificata, false altrimenti
+     */
     private void aggiornaStatoModifica(boolean modificabile) {
         new_nome.setEditable(modificabile);
         new_desc.setEditable(modificabile);
@@ -85,7 +94,6 @@ public class AddTaskController {
         new_salva.setDisable(!modificabile);
         new_del.setDisable(!modificabile);
 
-        // Stile visivo per indicare read-only
         if (!modificabile) {
             new_nome.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: gray;");
             new_desc.setStyle("-fx-background-color: #f0f0f0; -fx-text-fill: gray;");
@@ -95,6 +103,12 @@ public class AddTaskController {
         }
     }
 
+    /**
+     * Salva una nuova attività o aggiorna un'attività esistente.
+     * Se nessuna attività è selezionata, crea una nuova attività.
+     * Se un'attività eliminabile è selezionata, la aggiorna.
+     * Le attività non eliminabili non possono essere modificate.
+     */
     @FXML
     private void salvaNuovaAttivita() {
         Activity selected = new_tasktable.getSelectionModel().getSelectedItem();
@@ -110,7 +124,6 @@ public class AddTaskController {
             }
 
             if (selected == null) {
-                // 🆕 NUOVA attività
                 activityController.creaAttivita(nome, descrizione, stima);
                 mostraMessaggio("✅ Creata", "Nuova attività salvata!", Alert.AlertType.INFORMATION);
             } else if (selected.isEliminabile()) {
@@ -119,7 +132,7 @@ public class AddTaskController {
                 selected.setStimaTempo(stima);
 
                 activityController.aggiornaAttivita(selected);
-                mostraMessaggio("✅ Aggiornata", "Attività modificata!",Alert.AlertType.INFORMATION);
+                mostraMessaggio("✅ Aggiornata", "Attività modificata!", Alert.AlertType.INFORMATION);
             } else {
                 mostraMessaggio("⚠️ Read-only",
                         "Attività non modificabile:\n" +
@@ -136,6 +149,10 @@ public class AddTaskController {
         }
     }
 
+    /**
+     * Elimina l'attività selezionata dopo conferma dell'utente.
+     * Solo le attività eliminabili (non assegnate, non pianificate, non completate) possono essere eliminate.
+     */
     @FXML
     private void eliminaAttivita() {
         Activity selected = new_tasktable.getSelectionModel().getSelectedItem();
@@ -153,7 +170,6 @@ public class AddTaskController {
             return;
         }
 
-        // 🔒 Conferma eliminazione
         Alert conferma = new Alert(Alert.AlertType.CONFIRMATION);
         conferma.setTitle("🗑️ Conferma eliminazione");
         conferma.setHeaderText("Eliminare definitivamente?");
@@ -171,17 +187,25 @@ public class AddTaskController {
         }
     }
 
+    /**
+     * Pulisce il form e deseleziona l'attività dalla tabella,
+     * riportando l'interfaccia in modalità "nuova attività".
+     */
     @FXML
     private void pulisciForm() {
         new_nome.clear();
         new_desc.clear();
         new_hh.setValue("00");
         new_mm.setValue("00");
-        // Torna in modalità modifica completa (nuova attività)
         aggiornaStatoModifica(true);
         new_tasktable.getSelectionModel().clearSelection();
     }
 
+    /**
+     * Carica le attività nella tabella.
+     * Se il checkbox "solo eliminabili" è selezionato, carica solo le attività eliminabili,
+     * altrimenti carica tutte le attività.
+     */
     private void caricaAttivita() {
         activities.clear();
         try {
@@ -195,6 +219,12 @@ public class AddTaskController {
         }
     }
 
+    /**
+     * Carica i dati di un'attività nel form per la visualizzazione o modifica.
+     * Estrae ore e minuti dalla stima tempo e li imposta nei rispettivi ChoiceBox.
+     *
+     * @param activity l'attività da caricare nel form
+     */
     private void caricaAttivitaInForm(Activity activity) {
         new_nome.setText(activity.getNome());
         new_desc.setText(activity.getDescrizione());
@@ -206,9 +236,15 @@ public class AddTaskController {
                 new_mm.setValue(parts[1]);
             }
         }
-        // Lo stato editable è gestito da aggiornaStatoModifica()
     }
 
+    /**
+     * Mostra un messaggio di dialogo all'utente.
+     *
+     * @param titolo titolo della finestra di dialogo
+     * @param messaggio contenuto del messaggio
+     * @param tipo tipo di alert (ERROR, WARNING, INFORMATION, etc.)
+     */
     private void mostraMessaggio(String titolo, String messaggio, Alert.AlertType tipo) {
         Alert alert = new Alert(tipo);
         alert.setTitle(titolo);

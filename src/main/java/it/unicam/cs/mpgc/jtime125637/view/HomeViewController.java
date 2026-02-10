@@ -13,10 +13,10 @@ import java.net.URL;
 @NoArgsConstructor
 public class HomeViewController {
 
-	@FXML
-	private void openAddTask() {
-	    openView("/fxml/jTime_addTask.fxml", "Crea Attività");
-	}
+    @FXML
+    private void openAddTask() {
+        openView("/fxml/jTime_addTask.fxml", "Crea Attività");
+    }
 
     @FXML
     private void openAddProjects() {
@@ -43,6 +43,13 @@ public class HomeViewController {
         openView("/fxml/jTime_statistics.fxml", "Analisi e Statistiche");
     }
 
+    /**
+     * Carica e mostra una nuova finestra con la vista specificata.
+     * Applica automaticamente il foglio di stile CSS se disponibile.
+     *
+     * @param fxmlPath percorso del file FXML da caricare
+     * @param title titolo della finestra
+     */
     private void openView(String fxmlPath, String title) {
         try {
             FXMLLoader loader = new FXMLLoader(getClass().getResource(fxmlPath));
@@ -63,5 +70,4 @@ public class HomeViewController {
             e.printStackTrace();
         }
     }
-
 }
