@@ -1,14 +1,20 @@
 package it.unicam.cs.mpgc.jtime125637.model;
 
+import jakarta.persistence.*;
+
 import java.util.HashSet;
 import java.util.Set;
 
-
+@Entity
+@Table(name = "projects")
 public class Project {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
     private String nome;
     private String descrizione;
     private String stato = "attivo";
+    @OneToMany(mappedBy = "project", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     private Set<Activity> activities = new HashSet<>();
 
     public Project() {}

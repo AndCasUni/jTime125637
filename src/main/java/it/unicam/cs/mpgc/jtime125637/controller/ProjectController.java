@@ -85,7 +85,7 @@ public class ProjectController {
      * @param id l'ID del progetto da riaprire
      * @throws IllegalArgumentException se l'ID non è valido o il progetto non esiste
      */
-    public void riaperiProgetto(Integer id) {
+    public void riapriProgetto(Integer id) {
         if (id == null) {
             throw new IllegalArgumentException("ID progetto non valido");
         }
@@ -169,4 +169,5 @@ public class ProjectController {
         }
         projectRepository.update(project);
     }
+
 }

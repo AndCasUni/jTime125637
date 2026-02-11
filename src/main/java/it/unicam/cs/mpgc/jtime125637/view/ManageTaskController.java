@@ -50,6 +50,7 @@ public class ManageTaskController {
      */
     @FXML
     public void initialize() {
+
         inizializzaTabella();
         inizializzaChoiceBox();
         caricaProgetti();
@@ -94,7 +95,12 @@ public class ManageTaskController {
      */
     private void caricaProgetti() {
         try {
+
             progettiList.clear();
+            progettiList.add(new Project() {{
+                setId(-1);
+                setNome("Nessun progetto");
+            }});
             progettiList.addAll(projectController.getProgettiAttivi());
             manage_task.setItems(progettiList);
             manage_assegna.setItems(progettiList);
@@ -131,6 +137,7 @@ public class ManageTaskController {
     private void impostaListenerSelezioneTabella() {
         manage_table.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
             if (newSelection != null) {
+                caricaProgetti();
                 caricaDatiAttivita(newSelection);
                 aggiornaStatoModifica(!newSelection.isCompletata());
             } else {
@@ -153,7 +160,6 @@ public class ManageTaskController {
                         int ore = totaleMinuti / 60;
                         int minuti = totaleMinuti % 60;
 
-                        // Avviso visivo se si avvicina al limite (oltre 20 ore)
                         if (totaleMinuti > 1200) {
                             manage_add_data.setStyle("-fx-border-color: #f59e0b; -fx-border-width: 2;");
                             mostraTooltip(manage_add_data,
@@ -245,9 +251,11 @@ public class ManageTaskController {
             }
 
         } catch (Exception e) {
-            System.err.println("Errore caricamento dati attività: " + e.getMessage());
+            e.printStackTrace();  // Stampa stack trace completo
+            System.err.println("Errore caricamento dati attività: " + e.getClass().getSimpleName() + " - " + e.getMessage());
             pulisciForm();
         }
+
     }
 
     /**
@@ -256,6 +264,7 @@ public class ManageTaskController {
      */
     @FXML
     private void cercaAttivita() {
+        caricaProgetti();
         try {
             Integer id = null;
             if (!manage_cerca_id.getText().trim().isEmpty()) {
@@ -314,7 +323,7 @@ public class ManageTaskController {
 
             // Assegnazione progetto
             Project progettoSelezionato = manage_assegna.getValue();
-            if (progettoSelezionato != null) {
+            if ((progettoSelezionato != null) && (progettoSelezionato.getId() != -1)) {
                 activityController.associaProgetto(selected.getId(), progettoSelezionato.getId());
                 haModifiche = true;
             }
@@ -334,7 +343,6 @@ public class ManageTaskController {
             }
 
         } catch (IllegalStateException e) {
-            // Gestisce specificamente l'errore del limite 24 ore
             mostraMessaggio("❌ Limite 24 ore superato", e.getMessage(), Alert.AlertType.ERROR);
         } catch (Exception e) {
             mostraMessaggio("❌ Errore", e.getMessage(), Alert.AlertType.ERROR);
@@ -361,8 +369,13 @@ public class ManageTaskController {
      * @return la data convertita in LocalDate
      */
     private LocalDate convertToLocalDate(Date date) {
-        return LocalDate.ofInstant(date.toInstant(), java.time.ZoneId.systemDefault());
+        if (date instanceof java.sql.Date sqlDate) {
+            return ((java.sql.Date) sqlDate).toLocalDate();
+        } else {
+            return date.toInstant().atZone(java.time.ZoneId.systemDefault()).toLocalDate();
+        }
     }
+
 
     /**
      * Mostra un tooltip su un controllo.
@@ -398,5 +411,8 @@ public class ManageTaskController {
         alert.setHeaderText(null);
         alert.setContentText(messaggio);
         alert.showAndWait();
+    }
+    public void refreshProgetti() {
+        caricaProgetti();
     }
 }

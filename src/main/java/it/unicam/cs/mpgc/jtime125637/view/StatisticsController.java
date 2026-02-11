@@ -81,8 +81,8 @@ public class StatisticsController {
      * Imposta le date di default per i filtri: data finale a oggi e data iniziale a un mese fa.
      */
     private void impostaDateDefault() {
-        stat_adata.setValue(LocalDate.now());
-        stat_dadata.setValue(LocalDate.now().minusMonths(1));
+        stat_adata.setValue(LocalDate.now().plusMonths(1));
+        stat_dadata.setValue(LocalDate.now());
     }
 
     /**
@@ -124,7 +124,7 @@ public class StatisticsController {
             var statsProgetti = reportController.getStatisticheProgetti();
 
             ObservableList<PieChart.Data> datiProgetti = FXCollections.observableArrayList(
-                    new PieChart.Data("Attivi (" + statsProgetti.getAttivi() + ")", statsProgetti.getAttivi()),
+                    new PieChart.Data("Attivi (" + statsProgetti.getAttivi() + ")", statsProgetti.getAttivi() - statsProgetti.getVuoti()),
                     new PieChart.Data("Completati (" + statsProgetti.getCompletati() + ")", statsProgetti.getCompletati()),
                     new PieChart.Data("Vuoti (" + statsProgetti.getVuoti() + ")", statsProgetti.getVuoti())
             );

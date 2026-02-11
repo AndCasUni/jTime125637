@@ -27,7 +27,6 @@ public class HomeViewController {
     private void openManageTask() {
         openView("/fxml/jTime_manageTask.fxml", "Gestione Attività");
     }
-
     @FXML
     private void openCloseProjects() {
         openView("/fxml/jTime_closeProjects.fxml", "Chiudi Progetti");

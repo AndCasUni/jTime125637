@@ -14,8 +14,8 @@
             <TableColumn fx:id="colProgetto" prefWidth="189.79998779296875" text="Progetto" />
         </columns>
       </TableView>
-      <DatePicker fx:id="date" layoutX="54.0" layoutY="59.0" onAction="#caricaAttivitaGiorno" />
-      <Label layoutX="85.0" layoutY="26.0" text="Data" />
+      <DatePicker fx:id="date" layoutX="15.0" layoutY="59.0" onAction="#caricaAttivitaGiorno" />
+      <Label layoutX="23.0" layoutY="26.0" text="Data" />
       <TextField fx:id="completed" editable="false" layoutX="496.0" layoutY="59.0" prefHeight="26.0" prefWidth="86.0" />
       <TextField fx:id="notCompleted" editable="false" layoutX="662.0" layoutY="59.0" prefHeight="26.0" prefWidth="100.0" />
       <TextField fx:id="scheduled" editable="false" layoutX="358.0" layoutY="59.0" prefHeight="26.0" prefWidth="70.0" />
@@ -26,5 +26,6 @@
       </RadioButton>
       <RadioButton fx:id="planning_noncomplete" layoutX="662.0" layoutY="26.0" mnemonicParsing="false" text="Non completate" toggleGroup="$completo" />
       <RadioButton fx:id="planning_scheduled" layoutX="335.0" layoutY="26.0" mnemonicParsing="false" text="Programmate" toggleGroup="$completo" />
+      <Button fx:id="planning_aggiorna" layoutX="235.0" layoutY="57.0" mnemonicParsing="false" prefHeight="26.0" prefWidth="100.0" text="Aggiorna" onAction="#caricaAttivitaGiorno" />
    </children>
 </AnchorPane>

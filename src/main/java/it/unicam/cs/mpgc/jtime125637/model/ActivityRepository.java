@@ -82,12 +82,18 @@ public class ActivityRepository {
      * @throws RuntimeException se si verifica un errore durante la ricerca
      */
     public Activity findById(Integer id) {
+        Transaction tx = null;
         try (Session session = HibernateUtil.getSessionFactory().openSession()) {
-            return session.get(Activity.class, id);
+            tx = session.beginTransaction();
+            Activity activity = session.get(Activity.class, id);
+            tx.commit();
+            return activity;
         } catch (Exception e) {
-            throw new RuntimeException("Errore nella ricerca dell'attività", e);
+            if (tx != null) tx.rollback();
+            throw new RuntimeException("Errore ricerca attività", e);
         }
     }
+
 
     /**
      * Recupera tutte le attività ordinate per ID decrescente.

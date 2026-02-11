@@ -1,16 +1,36 @@
 package it.unicam.cs.mpgc.jtime125637.model;
 
 import java.util.Date;
+import jakarta.persistence.*;
 
-
+@Entity
+@Table(name = "activities")
 public class Activity {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
+
+    @Column(nullable = false)
     private String nome;
+
+    @Column(columnDefinition = "TEXT")
     private String descrizione;
+
+    @Column(name = "stima_tempo", nullable = false)
     private String stimaTempo;
+
+    @Column(name = "durata_effettiva", nullable = false)
     private String durataEffettiva = "00:00";
+
+    @Temporal(TemporalType.DATE)
+    @Column(name = "data_pianificazione")
     private Date dataPianificazione;
+
+    @Column(nullable = false)
     private boolean eliminabile = true;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "progetto_fk")
     private Project project;
 
     public Activity() {}
