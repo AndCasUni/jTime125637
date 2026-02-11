@@ -1,11 +1,6 @@
-/* ============================================
-   jTime - Modern CSS Stylesheet
-   Applicazione di Time Management
-   ============================================ */
 
-/* === ROOT VARIABLES === */
 .root {
-    /* Colori principali */
+    
     -fx-primary: #2563eb;
     -fx-primary-dark: #1e40af;
     -fx-primary-light: #3b82f6;
@@ -19,36 +14,29 @@
     -fx-warning: #f59e0b;
     -fx-success: #10b981;
     
-    /* Sfondo e superfici */
     -fx-background: #f8fafc;
     -fx-surface: #ffffff;
     -fx-surface-hover: #f1f5f9;
-    
-    /* Testo */
+  
     -fx-text-primary: #1e293b;
     -fx-text-secondary: #64748b;
     -fx-text-disabled: #94a3b8;
     
-    /* Bordi */
     -fx-border: #e2e8f0;
     -fx-border-focus: #2563eb;
     
-    /* Ombre */
     -fx-shadow-sm: rgba(0, 0, 0, 0.05);
     -fx-shadow-md: rgba(0, 0, 0, 0.1);
     -fx-shadow-lg: rgba(0, 0, 0, 0.15);
     
-    /* Font */
     -fx-font-family: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
     -fx-font-size: 14px;
 }
 
-/* === ANCHORPANE & LAYOUT === */
 AnchorPane {
     -fx-background-color: -fx-background;
 }
 
-/* === TAB PANE === */
 .tab-pane {
     -fx-background-color: -fx-background;
     -fx-padding: 0;
@@ -97,7 +85,6 @@ AnchorPane {
     -fx-padding: 20;
 }
 
-/* === LABELS === */
 .label {
     -fx-text-fill: -fx-text-primary;
     -fx-font-size: 14px;
@@ -105,7 +92,6 @@ AnchorPane {
     -fx-padding: 0 0 5 0;
 }
 
-/* === TEXT FIELDS === */
 .text-field,
 .text-area {
     -fx-background-color: -fx-surface;
@@ -136,7 +122,6 @@ AnchorPane {
     -fx-padding: 10 12;
 }
 
-/* === BUTTONS === */
 .button {
     -fx-background-color: -fx-primary;
     -fx-background-radius: 6;
@@ -165,7 +150,6 @@ AnchorPane {
     -fx-cursor: default;
 }
 
-/* Button varianti */
 .button#add_salva,
 .button#new_salva,
 .button#manage_save {
@@ -214,7 +198,6 @@ AnchorPane {
     -fx-background-color: #d97706;
 }
 
-/* === TABLE VIEW === */
 .table-view {
     -fx-background-color: -fx-surface;
     -fx-background-radius: 8;
@@ -268,13 +251,11 @@ AnchorPane {
     -fx-font-size: 13px;
 }
 
-/* Stile per celle speciali (eliminabile, stato) */
 .table-cell .label {
     -fx-font-size: 12px;
     -fx-font-weight: 600;
 }
 
-/* === CHOICE BOX === */
 .choice-box {
     -fx-background-color: -fx-surface;
     -fx-background-radius: 6;
@@ -302,7 +283,6 @@ AnchorPane {
     -fx-background-color: -fx-text-secondary;
 }
 
-/* === CHECKBOX === */
 .check-box {
     -fx-text-fill: -fx-text-primary;
     -fx-font-size: 14px;
@@ -334,7 +314,6 @@ AnchorPane {
     -fx-scale-y: 0.7;
 }
 
-/* === RADIO BUTTON === */
 .radio-button {
     -fx-text-fill: -fx-text-primary;
     -fx-font-size: 14px;
@@ -365,7 +344,6 @@ AnchorPane {
     -fx-padding: 4;
 }
 
-/* === DATE PICKER === */
 .date-picker {
     -fx-background-color: -fx-surface;
     -fx-background-radius: 6;
@@ -391,7 +369,6 @@ AnchorPane {
     -fx-background-color: -fx-primary;
 }
 
-/* === PIE CHART === */
 .chart {
     -fx-background-color: -fx-surface;
     -fx-background-radius: 8;
@@ -428,7 +405,6 @@ AnchorPane {
     -fx-font-weight: 600;
 }
 
-/* === SCROLL BAR === */
 .scroll-bar {
     -fx-background-color: transparent;
 }
@@ -448,7 +424,6 @@ AnchorPane {
     -fx-padding: 0;
 }
 
-/* === TOOLTIP === */
 .tooltip {
     -fx-background-color: derive(-fx-text-primary, -20%);
     -fx-background-radius: 6;
@@ -458,20 +433,16 @@ AnchorPane {
     -fx-effect: dropshadow(gaussian, -fx-shadow-md, 10, 0, 0, 2);
 }
 
-/* === VBOX STYLING === */
 .vbox {
     -fx-spacing: 8;
 }
 
-/* === SPECIAL STATES === */
-/* Campo read-only */
 .text-field[editable="false"],
 .text-area[editable="false"] {
     -fx-background-color: -fx-surface-hover;
     -fx-text-fill: -fx-text-secondary;
 }
 
-/* Statistiche - TextField speciali */
 #stat_tothh,
 #stat_tothheff,
 #stat_tothhrimaste,
@@ -498,38 +469,24 @@ AnchorPane {
     -fx-text-fill: #d97706;
 }
 
-/* === ANIMATIONS === */
-@keyframes fade-in {
-    from {
-        -fx-opacity: 0;
-    }
-    to {
-        -fx-opacity: 1;
-    }
-}
 
-/* === RESPONSIVE PADDING === */
 .form-container {
     -fx-padding: 20;
     -fx-spacing: 15;
 }
 
-/* === FOCUS INDICATOR === */
 *:focused {
     -fx-focus-color: transparent;
     -fx-faint-focus-color: transparent;
 }
-/* === PADDING MIGLIORATO PER ANCHORPANE === */
 AnchorPane {
     -fx-padding: 20;
 }
 
-/* Padding specifico per TabPane content */
 .tab-pane .tab-content-area {
     -fx-padding: 25;
 }
 
-/* Spacing tra elementi nei form */
 .text-field,
 .text-area,
 .choice-box,
@@ -537,17 +494,14 @@ AnchorPane {
     -fx-pref-height: 35;
 }
 
-/* Margini per le Label */
 .label {
     -fx-padding: 0 0 8 0;
 }
 
-/* Spacing per VBox */
 VBox {
     -fx-spacing: 12;
 }
 
-/* Dimensioni minime per TableView */
 .table-view {
     -fx-min-height: 250;
 }
