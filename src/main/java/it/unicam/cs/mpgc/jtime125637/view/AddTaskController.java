@@ -206,6 +206,7 @@ public class AddTaskController {
      * Se il checkbox "solo eliminabili" è selezionato, carica solo le attività eliminabili,
      * altrimenti carica tutte le attività.
      */
+    @FXML
     private void caricaAttivita() {
         activities.clear();
         try {

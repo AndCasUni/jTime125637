@@ -8,7 +8,7 @@ import org.hibernate.query.Query;
 import java.util.List;
 
 @NoArgsConstructor
-public class ProjectRepository {
+public class ProjectRepository implements ProjectRepositoryInterface{
 
     /**
      * Salva un nuovo progetto nel database.

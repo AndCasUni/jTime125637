@@ -1,16 +1,13 @@
 package it.unicam.cs.mpgc.jtime125637.controller;
 
-import it.unicam.cs.mpgc.jtime125637.model.Project;
-import it.unicam.cs.mpgc.jtime125637.model.ProjectRepository;
-import it.unicam.cs.mpgc.jtime125637.model.ActivityRepository;
+import it.unicam.cs.mpgc.jtime125637.model.*;
 import lombok.NoArgsConstructor;
 
 import java.util.List;
 
 @NoArgsConstructor
 public class ProjectController {
-    private final ProjectRepository projectRepository = new ProjectRepository();
-    private final ActivityRepository activityRepository = new ActivityRepository();
+    private final ProjectRepositoryInterface projectRepository = new ProjectRepository();
 
     /**
      * Crea un nuovo progetto con nome e descrizione.

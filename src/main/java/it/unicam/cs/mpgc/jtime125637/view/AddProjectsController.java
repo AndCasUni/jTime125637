@@ -202,6 +202,7 @@ public class AddProjectsController {
      * Se il checkbox "solo eliminabili" è selezionato, carica solo i progetti eliminabili,
      * altrimenti carica tutti i progetti.
      */
+    @FXML
     private void caricaProgetti() {
         projects.clear();
         try {

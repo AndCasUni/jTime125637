@@ -1,9 +1,6 @@
 package it.unicam.cs.mpgc.jtime125637.controller;
 
-import it.unicam.cs.mpgc.jtime125637.model.Activity;
-import it.unicam.cs.mpgc.jtime125637.model.ActivityRepository;
-import it.unicam.cs.mpgc.jtime125637.model.Project;
-import it.unicam.cs.mpgc.jtime125637.model.ProjectRepository;
+import it.unicam.cs.mpgc.jtime125637.model.*;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
@@ -17,8 +14,8 @@ import java.util.List;
  */
 @NoArgsConstructor
 public class ActivityController {
-    private final ActivityRepository activityRepository = new ActivityRepository();
-    private final ProjectRepository projectRepository = new ProjectRepository();
+    private final ActivityRepositoryInterface activityRepository = new ActivityRepository();
+    private final ProjectRepositoryInterface  projectRepository = new ProjectRepository();
 
     /**
      * Crea una nuova attività con nome, descrizione e stima del tempo.

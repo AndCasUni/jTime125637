@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 @NoArgsConstructor
-public class ActivityRepository {
+public class ActivityRepository implements ActivityRepositoryInterface{
 
     /**
      * Salva una nuova attività nel database.

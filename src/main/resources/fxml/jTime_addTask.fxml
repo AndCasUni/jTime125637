@@ -25,5 +25,6 @@
        <Button fx:id="new_clean" layoutX="160.0" layoutY="285.0" mnemonicParsing="false" onAction="#pulisciForm" prefHeight="41.0" prefWidth="99.0" text="Pulisci" />
        <Button fx:id="new_del" layoutX="72.0" layoutY="371.0" mnemonicParsing="false" onAction="#eliminaAttivita" prefHeight="39.0" prefWidth="99.0" text="Elimina" />
       <Label layoutX="295.0" layoutY="38.0" text="Ultime attività inserite" />
+      <Button fx:id="add_aggiorna" layoutX="71.0" layoutY="439.0" mnemonicParsing="false" prefHeight="39.0" prefWidth="99.0" text="Aggiorna" onAction="#caricaAttivita"/>
    </children>
 </AnchorPane>
